@@ -1,226 +1,51 @@
-// import { useState, useEffect } from "react";
-// import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-
-// function ParkingLotBooking({ lot, user, onClose }) {
-//   const [selectedVehicle, setSelectedVehicle] = useState("CAR");
-//   const [fullLotData, setFullLotData] = useState(null); // Store full backend data
-//   const [loading, setLoading] = useState(false);
-//   const [fetchingData, setFetchingData] = useState(true);
-//   const navigate = useNavigate();
-
-//   // 1. FETCH FULL DATA (To get up-to-date slots & pricing)
-//   useEffect(() => {
-//     const fetchLotDetails = async () => {
-//       try {
-//         // Fetch specific lot by ID to get the 'slots' array
-//         const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`);
-//         setFullLotData(res.data);
-//       } catch (err) {
-//         console.error("Error fetching lot details:", err);
-//       } finally {
-//         setFetchingData(false);
-//       }
-//     };
-
-//     if (lot?.id) {
-//       fetchLotDetails();
-//     }
-//   }, [lot]);
-
-//   // 2. DYNAMIC RATE FINDER
-//   const getSlotDetails = () => {
-//     if (!fullLotData || !fullLotData.slots) return null;
-//     return fullLotData.slots.find((s) => s.vehicleType === selectedVehicle);
-//   };
-
-//   const slotDetails = getSlotDetails();
-//   const isVehicleAvailable = !!slotDetails; // True if this lot supports the vehicle
-
-//   // 3. CONFIRMATION LOGIC
-//   const handleConfirmBooking = async () => {
-//     setLoading(true);
-    
-//     // Calculate initial estimated amount (e.g., 1 hour) or 0
-//     const hourlyRate = slotDetails ? slotDetails.price : 0;
-
-//     const bookingData = {
-//       user: { id: user.id },
-//       lot: { id: lot.id },
-//       vehicleType: selectedVehicle,
-//       vehicleNumber: "MH-12-AB-1234", // Ideally, ask user for this input
-//       serviceType: "SELF",
-//       status: "CONFIRMED",
-//       startTime: new Date().toISOString(),
-//       totalAmount: hourlyRate // Saving the rate as initial amount
-//     };
-
-//     try {
-//       await axios.post("http://localhost:8080/api/bookings", bookingData);
-//       alert("Booking Confirmed!");
-//       navigate("/user-dashboard"); // Redirect to dashboard
-//     } catch (err) {
-//       alert("Booking failed: " + (err.response?.data || "Server Error"));
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   if (fetchingData) return <div className="fixed inset-0 bg-slate-900/60 z-[9999] flex items-center justify-center text-white">Loading rates...</div>;
-//   // 👇👇 PASTE YOUR CODE HERE 👇👇
-//   if (lot.status === "PAUSED") {
-//     return (
-//       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-//         <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl">
-//           <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-//             ⚠️
-//           </div>
-//           <h2 className="text-xl font-bold text-slate-800 mb-2">Temporarily Closed</h2>
-//           <p className="text-slate-500 text-sm mb-6">
-//             The parking lot <strong>{lot.name}</strong> is currently under maintenance and cannot accept new bookings.
-//           </p>
-//           <button 
-//             onClick={onClose}
-//             className="w-full bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200"
-//           >
-//             Close
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-200">
-//       <div className="bg-white w-full max-w-md rounded-[2rem] p-8 shadow-2xl relative">
-//         <button onClick={onClose} className="absolute top-6 right-6 text-slate-300 hover:text-slate-800 font-bold">✕</button>
-        
-//         <h2 className="text-2xl font-black text-slate-800 mb-1 uppercase tracking-tighter">Secure Spot</h2>
-//         <p className="text-slate-500 text-sm mb-6">{fullLotData?.name || lot.name}</p>
-
-//         {/* VEHICLE SELECTOR - Only show available types if desired, or show all and disable */}
-//         <label className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">
-//           Select Vehicle Type
-//         </label>
-//         <div className="flex gap-3 mb-6">
-//           {[
-//             { id: 'BIKE', icon: '🏍️' },
-//             { id: 'CAR', icon: '🚗' },
-//             { id: 'HEAVY', icon: '🚛' } // Changed TRUCK to HEAVY to match your backend enum if needed
-//           ].map((v) => {
-//             // Check if this specific vehicle type exists in the fetched slots
-//             const isSupported = fullLotData?.slots?.some(s => s.vehicleType === v.id);
-            
-//             return (
-//               <button
-//                 key={v.id}
-//                 disabled={!isSupported} // Disable if lot doesn't support this type
-//                 onClick={() => setSelectedVehicle(v.id)}
-//                 className={`flex-1 py-3 rounded-2xl flex flex-col items-center gap-1 transition-all border-2 
-//                   ${!isSupported ? 'opacity-30 cursor-not-allowed bg-slate-100 border-slate-100 grayscale' : ''}
-//                   ${selectedVehicle === v.id && isSupported
-//                     ? 'border-indigo-600 bg-indigo-50 text-indigo-600' 
-//                     : 'border-slate-100 bg-slate-50 text-slate-400'
-//                   }`}
-//               >
-//                 <span className="text-2xl">{v.icon}</span>
-//                 <span className="text-[9px] font-black">{v.id}</span>
-//               </button>
-//             );
-//           })}
-//         </div>
-
-//         {/* LIVE PRICE PREVIEW */}
-//         <div className="bg-slate-900 text-white p-6 rounded-3xl mb-6 flex justify-between items-center">
-//           <div>
-//             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hourly Rate</p>
-//             {isVehicleAvailable ? (
-//                 <p className="text-3xl font-black">₹{slotDetails.price}<span className="text-sm font-normal text-slate-500">/hr</span></p>
-//             ) : (
-//                 <p className="text-xl font-bold text-red-400">Unavailable</p>
-//             )}
-//           </div>
-//           <div className="text-right opacity-50">
-//              <p className="text-[10px] font-bold uppercase tracking-widest">Vehicle</p>
-//              <p className="font-bold">{selectedVehicle}</p>
-//           </div>
-//         </div>
-
-//         {/* CAPACITY WARNING */}
-//         {isVehicleAvailable && slotDetails.capacity < 5 && (
-//             <p className="text-xs text-amber-600 font-bold mb-4 text-center">
-//                 ⚠️ Only {slotDetails.capacity} spots left!
-//             </p>
-//         )}
-
-//         <button 
-//           disabled={loading || !isVehicleAvailable}
-//           onClick={handleConfirmBooking}
-//           className={`w-full text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl transition-all active:scale-95
-//             ${loading || !isVehicleAvailable ? "bg-slate-400 cursor-not-allowed shadow-none" : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"}
-//           `}
-//         >
-//           {loading ? "Processing..." : isVehicleAvailable ? "Confirm Booking" : "Not Available"}
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ParkingLotBooking;
-
-
-
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Car, Clock, CreditCard, Calendar, Phone, FileText, X } from "lucide-react";
+import { Car, Clock, CreditCard, X, Phone, FileText, ArrowRight, MapPin } from "lucide-react";
 
 function ParkingLotBooking({ lot, user, onClose }) {
   const navigate = useNavigate();
-  
-  // Data States
+
+  // --- LOGIC REMAINS EXACTLY THE SAME ---
   const [selectedVehicle, setSelectedVehicle] = useState("CAR");
   const [fullLotData, setFullLotData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
-
-  // Form States
   const [vehicleNumber, setVehicleNumber] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
   const [durationHours, setDurationHours] = useState(0);
 
-  // 1. FETCH DATA & INIT TIMES
   useEffect(() => {
-    // Set default times (Now -> Now + 2 hours)
     const now = new Date();
+    now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15, 0, 0);
     const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
     
-    // Format for input[type="datetime-local"] (YYYY-MM-DDTHH:MM)
-    const formatTime = (date) => date.toISOString().slice(0, 16);
+    const formatTime = (date) => {
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    };
     
     setStartTime(formatTime(now));
     setEndTime(formatTime(twoHoursLater));
 
     const fetchLotDetails = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`);
+        const token = localStorage.getItem("token");
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`, config);
         setFullLotData(res.data);
       } catch (err) {
-        console.error("Error fetching lot details:", err);
+        if (err.response?.status === 401) navigate("/login");
       } finally {
         setFetchingData(false);
       }
     };
-
     if (lot?.id) fetchLotDetails();
-  }, [lot]);
+  }, [lot, navigate]);
 
-  // 2. GET CURRENT VEHICLE SLOT DETAILS
   const getSlotDetails = () => {
     if (!fullLotData || !fullLotData.slots) return null;
     return fullLotData.slots.find((s) => s.vehicleType === selectedVehicle);
@@ -228,32 +53,32 @@ function ParkingLotBooking({ lot, user, onClose }) {
   const slotDetails = getSlotDetails();
   const isVehicleAvailable = !!slotDetails;
 
-  // 3. RE-CALCULATE PRICE WHEN TIMES CHANGE
   useEffect(() => {
     if (startTime && endTime && slotDetails) {
       const start = new Date(startTime);
       const end = new Date(endTime);
       const diffMs = end - start;
-      const diffHrs = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60))); // Minimum 1 hour
-
+      const diffHrs = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60))); 
       setDurationHours(diffHrs);
       setTotalPrice(diffHrs * slotDetails.price);
     }
   }, [startTime, endTime, slotDetails, selectedVehicle]);
 
-  // 4. SUBMIT BOOKING
-  const handleConfirmBooking = async () => {
-    if (!vehicleNumber.trim() || !phoneNumber.trim()) {
-      alert("Please enter all details");
-      return;
-    }
+  const handleQuickDuration = (hours) => {
+    if (!startTime) return;
+    const start = new Date(startTime);
+    const newEnd = new Date(start.getTime() + hours * 60 * 60 * 1000);
+    const offset = newEnd.getTimezoneOffset() * 60000;
+    setEndTime(new Date(newEnd.getTime() - offset).toISOString().slice(0, 16));
+  };
 
-    if (new Date(endTime) <= new Date(startTime)) {
-        alert("End time must be after start time");
-        return;
-    }
+  const handleConfirmBooking = async () => {
+    if (!vehicleNumber.trim() || !phoneNumber.trim()) return alert("Please enter details");
+    if (new Date(endTime) <= new Date(startTime)) return alert("End time invalid");
 
     setLoading(true);
+    const token = localStorage.getItem("token");
+    const config = { headers: { Authorization: `Bearer ${token}` } };
 
     const bookingData = {
       user: { id: user.id },
@@ -264,16 +89,16 @@ function ParkingLotBooking({ lot, user, onClose }) {
       serviceType: "SELF",
       status: "CONFIRMED",
       startTime: new Date(startTime).toISOString(),
-      endTime: new Date(endTime).toISOString(), // 🟢 Sending End Time now
-      totalAmount: totalPrice // 🟢 Sending Calculated Price
+      endTime: new Date(endTime).toISOString(),
+      totalAmount: totalPrice
     };
 
     try {
-      await axios.post("http://localhost:8080/api/bookings", bookingData);
+      await axios.post("http://localhost:8080/api/bookings", bookingData, config);
       alert("Booking Successful! 🎟️");
       navigate("/user-dashboard");
     } catch (err) {
-      alert("Booking failed: " + (err.response?.data || "Server Error"));
+      alert("Failed: " + (err.response?.data || "Error"));
     } finally {
       setLoading(false);
     }
@@ -281,44 +106,31 @@ function ParkingLotBooking({ lot, user, onClose }) {
 
   if (fetchingData) return null;
 
-  // 🛑 PAUSED STATE
-  if (lot.status === "PAUSED") {
-    return (
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-        <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl animate-in zoom-in-95">
-          <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">⚠️</div>
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Temporarily Closed</h2>
-          <p className="text-slate-500 text-sm mb-6">This location is under maintenance.</p>
-          <button onClick={onClose} className="w-full bg-slate-100 font-bold py-3 rounded-xl hover:bg-slate-200">Close</button>
-        </div>
-      </div>
-    );
-  }
-
-  // ✅ ATTRACTIVE UI
+  // --- COMPACT JSX STARTS HERE ---
   return (
-    <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[9999] p-4 md:p-6 overflow-y-auto">
-      <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row overflow-hidden relative animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in zoom-in-95 duration-200">
+      {/* Reduced Max Width to 3xl and rounded corners */}
+      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh]">
         
-        {/* CLOSE BUTTON */}
-        <button onClick={onClose} className="absolute top-4 right-4 z-10 p-2 bg-white/50 hover:bg-slate-100 rounded-full backdrop-blur-sm transition-all">
-            <X className="w-6 h-6 text-slate-500" />
-        </button>
-
-        {/* LEFT PANEL: CONFIGURATION */}
-        <div className="flex-1 p-8 md:p-10 space-y-8">
-            <div>
-                <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-1">Reserve Spot</h2>
-                <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
-                    <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide">Self Park</span>
-                    <span>•</span>
-                    <span>{fullLotData?.name || lot.name}</span>
+        {/* === LEFT PANEL === */}
+        <div className="flex-1 p-6 overflow-y-auto no-scrollbar">
+            
+            {/* Header - Compact */}
+            <div className="flex justify-between items-start mb-5">
+                <div>
+                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Reserve Spot</h2>
+                    <div className="flex items-center gap-1.5 mt-1 text-slate-500 text-xs font-bold">
+                        <MapPin className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>{fullLotData?.name || lot.name}</span>
+                    </div>
                 </div>
+                <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
+                    <X className="w-5 h-5 text-slate-400" />
+                </button>
             </div>
 
-            {/* VEHICLE SELECTOR */}
-            <div>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">Vehicle Type</label>
+            {/* 1. Vehicle Type - Smaller Grid */}
+            <div className="mb-6">
                 <div className="grid grid-cols-3 gap-3">
                     {[
                         { id: 'BIKE', label: 'Bike', icon: '🏍️' },
@@ -332,135 +144,138 @@ function ParkingLotBooking({ lot, user, onClose }) {
                                 key={v.id}
                                 disabled={!isSupported}
                                 onClick={() => setSelectedVehicle(v.id)}
-                                className={`relative py-3 rounded-2xl flex flex-col items-center gap-1 transition-all border-2
-                                    ${!isSupported ? 'opacity-40 grayscale cursor-not-allowed border-slate-100 bg-slate-50' : ''}
-                                    ${isSelected ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-white text-slate-600 hover:border-slate-200'}
+                                className={`h-16 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1
+                                    ${!isSupported ? 'opacity-30 grayscale cursor-not-allowed bg-slate-50' : ''}
+                                    ${isSelected ? 'border-indigo-600 bg-indigo-50/50 shadow-md' : 'border-slate-100 bg-white hover:border-indigo-200'}
                                 `}
                             >
-                                <span className="text-2xl">{v.icon}</span>
-                                <span className="text-[10px] font-black uppercase">{v.label}</span>
-                                {isSelected && <div className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full"></div>}
+                                <span className="text-xl">{v.icon}</span>
+                                <span className={`text-[10px] font-black uppercase ${isSelected ? 'text-indigo-700' : 'text-slate-400'}`}>{v.label}</span>
                             </button>
                         );
                     })}
                 </div>
             </div>
 
-            {/* TIME & DATE SELECTOR */}
-            <div>
-                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <Clock size={14} /> Duration
-                 </label>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Arrive After</span>
-                        <input 
-                            type="datetime-local" 
-                            className="w-full bg-transparent text-sm font-bold text-slate-700 outline-none"
-                            value={startTime}
-                            onChange={(e) => setStartTime(e.target.value)}
-                        />
+            {/* 2. Timeline - Tighter Spacing */}
+            <div className="mb-6">
+                 <div className="relative pl-4 border-l-2 border-dashed border-slate-200 space-y-3">
+                    {/* Arrive */}
+                    <div className="relative">
+                        <div className="absolute -left-[21px] top-3 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-white"></div>
+                        <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-200 transition-all">
+                            <label className="text-[9px] font-bold text-emerald-600 uppercase block">Arrive</label>
+                            <input 
+                                type="datetime-local" 
+                                className="w-full bg-transparent font-bold text-slate-700 outline-none text-xs font-mono"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                            />
+                        </div>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Leave Before</span>
-                        <input 
-                            type="datetime-local" 
-                            className="w-full bg-transparent text-sm font-bold text-slate-700 outline-none"
-                            value={endTime}
-                            onChange={(e) => setEndTime(e.target.value)}
-                        />
+
+                    {/* Quick Pills */}
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar pl-1">
+                        {[1, 2, 3, 4, 12, 24].map(h => (
+                            <button key={h} onClick={() => handleQuickDuration(h)}
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-bold border transition-all whitespace-nowrap
+                                    ${durationHours === h ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-500 border-slate-200 hover:border-indigo-300"}
+                                `}
+                            >+{h}h</button>
+                        ))}
+                    </div>
+
+                    {/* Leave */}
+                    <div className="relative">
+                        <div className="absolute -left-[21px] top-3 w-3 h-3 bg-rose-500 rounded-full ring-2 ring-white"></div>
+                        <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-200 transition-all">
+                            <label className="text-[9px] font-bold text-rose-500 uppercase block">Depart</label>
+                            <input 
+                                type="datetime-local" 
+                                className="w-full bg-transparent font-bold text-slate-700 outline-none text-xs font-mono"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                            />
+                        </div>
                     </div>
                  </div>
             </div>
 
-            {/* DETAILS FORM */}
-            <div className="space-y-4">
-                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-                    <FileText size={14} /> Your Details
-                 </label>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                        <Car className="text-slate-400 w-5 h-5" />
-                        <div className="flex-1">
-                            <input 
-                                placeholder="MH-12-AB-1234" 
-                                className="w-full bg-transparent text-sm font-bold text-slate-700 placeholder:font-normal outline-none uppercase"
-                                value={vehicleNumber}
-                                onChange={(e) => setVehicleNumber(e.target.value)}
-                            />
-                        </div>
+            {/* 3. Details - Compact Inputs */}
+            <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-2">
+                    <Car className="text-slate-300 w-4 h-4" />
+                    <div>
+                        <label className="text-[9px] font-bold text-slate-400 uppercase block leading-none">Vehicle No</label>
+                        <input placeholder="MH-12-AB-1234" className="w-full font-bold text-slate-700 text-xs outline-none uppercase placeholder:font-normal"
+                            value={vehicleNumber} onChange={(e) => setVehicleNumber(e.target.value)} />
                     </div>
-                    <div className="bg-slate-50 px-4 py-3 rounded-xl border border-slate-200 flex items-center gap-3 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                        <Phone className="text-slate-400 w-5 h-5" />
-                        <div className="flex-1">
-                            <input 
-                                placeholder="9876543210" 
-                                type="tel"
-                                className="w-full bg-transparent text-sm font-bold text-slate-700 placeholder:font-normal outline-none"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                            />
-                        </div>
+                </div>
+                <div className="bg-white px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-2">
+                    <Phone className="text-slate-300 w-4 h-4" />
+                    <div>
+                        <label className="text-[9px] font-bold text-slate-400 uppercase block leading-none">Mobile</label>
+                        <input placeholder="9876543210" className="w-full font-bold text-slate-700 text-xs outline-none placeholder:font-normal"
+                            value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                     </div>
-                 </div>
+                </div>
             </div>
         </div>
 
-        {/* RIGHT PANEL: BILL SUMMARY (TICKET STYLE) */}
-        <div className="w-full md:w-80 bg-slate-50 border-l border-slate-200 p-8 flex flex-col relative">
-            
-            {/* Ticket Visual Decoration */}
-            <div className="absolute -left-3 top-1/2 w-6 h-6 bg-slate-900/70 backdrop-blur-md rounded-full"></div>
-            
-            <h3 className="font-black text-slate-800 text-lg mb-6 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-indigo-600" /> Bill Summary
-            </h3>
+        {/* === RIGHT PANEL === */}
+        <div className="w-full md:w-72 bg-slate-50 border-l border-slate-200 p-6 flex flex-col justify-between relative">
+            <div className="absolute top-0 right-0 p-20 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="space-y-4 flex-1">
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 font-medium">Rate per hour</span>
-                    <span className="font-bold text-slate-800">₹{slotDetails?.price || 0}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 font-medium">Duration</span>
-                    <span className="font-bold text-slate-800">{durationHours} hrs</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 font-medium">Booking Fee</span>
-                    <span className="font-bold text-green-600">Free</span>
+            <div>
+                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-indigo-600" /> Summary
+                </h3>
+
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-violet-500" />
+                    <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 font-medium">Rate</span>
+                        <span className="font-bold text-slate-800">₹{slotDetails?.price || 0}/hr</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                        <span className="text-slate-500 font-medium">Time</span>
+                        <span className="font-bold text-slate-800">{durationHours} hrs</span>
+                    </div>
+                    <div className="my-1 border-t border-dashed border-slate-100"></div>
+                    <div className="flex justify-between items-end">
+                        <span className="text-slate-500 font-bold text-[10px] uppercase">Total</span>
+                        <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-violet-600">
+                            ₹{totalPrice}
+                        </span>
+                    </div>
                 </div>
                 
-                <div className="my-4 border-t-2 border-dashed border-slate-200"></div>
-                
-                <div className="flex justify-between items-end">
-                    <span className="text-slate-500 font-bold text-sm">Total Pay</span>
-                    <span className="text-3xl font-black text-indigo-600">₹{totalPrice}</span>
-                </div>
+                {isVehicleAvailable && slotDetails.capacity < 5 && (
+                    <p className="mt-3 text-center text-[10px] text-amber-600 font-bold bg-amber-50 py-1 rounded-md border border-amber-100">
+                        🔥 Only {slotDetails.capacity} spots left!
+                    </p>
+                )}
             </div>
 
-            {/* Capacity Warning */}
-            {isVehicleAvailable && slotDetails.capacity < 5 && (
-                <div className="mt-6 mb-4 bg-amber-50 text-amber-700 px-3 py-2 rounded-lg text-xs font-bold text-center border border-amber-100">
-                    🔥 Hurry! Only {slotDetails.capacity} spots left
-                </div>
-            )}
-
-            <button 
-                disabled={loading || !isVehicleAvailable}
-                onClick={handleConfirmBooking}
-                className={`w-full py-4 rounded-xl font-bold shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2
-                    ${loading || !isVehicleAvailable 
-                        ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none" 
-                        : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-indigo-500/30"
-                    }
-                `}
-            >
-                {loading ? (
-                    <>Processing...</>
-                ) : (
-                    <>Confirm Payment <span className="bg-white/20 px-2 py-0.5 rounded text-xs">→</span></>
-                )}
-            </button>
+            <div className="mt-6 space-y-2">
+                <button 
+                    disabled={loading || !isVehicleAvailable}
+                    onClick={handleConfirmBooking}
+                    className={`group w-full py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden
+                        ${loading || !isVehicleAvailable 
+                            ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none" 
+                            : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-indigo-500/40"
+                        }
+                    `}
+                >
+                    <span className="relative z-10">{loading ? "Processing..." : "Pay Now"}</span>
+                    {!loading && <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />}
+                    {!loading && isVehicleAvailable && <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />}
+                </button>
+                <p className="text-center text-[9px] text-slate-400 font-medium flex items-center justify-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> SSL Secure Payment
+                </p>
+            </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { useState } from "react";
 import "leaflet/dist/leaflet.css";
@@ -27,15 +26,15 @@ export default function LocationPicker({ setLocation }) {
   return (
     <div className="w-full rounded-2xl overflow-hidden shadow-lg border border-gray-200 relative group">
       <MapContainer 
-        center={[18.5204, 73.8567]} 
-        zoom={13} 
+        // ✅ FIX: Default to Armori
+        center={[20.4733646, 79.9804463]} 
+        zoom={15} 
         className="h-80 w-full z-0"
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <LocationMarker setLocation={setLocation} />
       </MapContainer>
       
-      {/* Overlay hint */}
       <div className="absolute bottom-2 right-2 z-[999] bg-white/80 backdrop-blur px-2 py-1 rounded text-[10px] text-gray-500 shadow-sm pointer-events-none">
         Click to set coordinates
       </div>

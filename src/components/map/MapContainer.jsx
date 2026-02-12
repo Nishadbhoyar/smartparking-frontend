@@ -20,26 +20,20 @@ function MapRecenter({ center }) {
   return null;
 }
 
-// 🟢 NEW: Smart Marker Component
-// This handles the hover effect independently for each marker
+// Smart Marker Component
 const ParkingMarker = ({ lot, isHovered, onSelectLot }) => {
   const markerRef = useRef(null);
 
-  // 👂 Listen for hover changes
   useEffect(() => {
     if (markerRef.current) {
-      if (isHovered) {
-        markerRef.current.openPopup();
-      } else {
-        markerRef.current.closePopup();
-      }
+      if (isHovered) markerRef.current.openPopup();
+      else markerRef.current.closePopup();
     }
   }, [isHovered]);
 
   const lat = parseFloat(lot.latitude);
   const lng = parseFloat(lot.longitude);
 
-  // Safety check for invalid coordinates
   if (isNaN(lat) || isNaN(lng)) return null;
 
   return (
@@ -48,22 +42,15 @@ const ParkingMarker = ({ lot, isHovered, onSelectLot }) => {
         <div className="min-w-[150px] font-sans">
           <h4 className="font-black uppercase text-sm text-slate-800 mb-1">{lot.name}</h4>
           <p className="text-xs text-slate-500 mb-3 leading-tight">{lot.address}</p>
-          
           <div className="flex justify-between items-center border-t border-slate-100 pt-3">
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase">Rate</p>
-              <span className="text-indigo-600 font-black text-sm">
-                ₹{lot.slots?.[0]?.price || 50}<span className="text-[10px] text-slate-400 font-medium">/hr</span>
-              </span>
-            </div>
-            
+            <span className="text-indigo-600 font-black text-sm">
+              ₹{lot.slots?.[0]?.price || 50}<span className="text-[10px] text-slate-400 font-medium">/hr</span>
+            </span>
             <button 
-              onClick={() => onSelectLot(lot)} // 👈 Connects to booking modal
+              onClick={() => onSelectLot(lot)} 
               disabled={lot.status === 'PAUSED'}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wide text-white transition-all ${
-                lot.status === 'PAUSED' 
-                  ? 'bg-slate-300 cursor-not-allowed' 
-                  : 'bg-slate-900 hover:bg-indigo-600 shadow-lg'
+                lot.status === 'PAUSED' ? 'bg-slate-300 cursor-not-allowed' : 'bg-slate-900 hover:bg-indigo-600 shadow-lg'
               }`}
             >
               {lot.status === 'PAUSED' ? 'CLOSED' : 'BOOK'}
@@ -75,19 +62,21 @@ const ParkingMarker = ({ lot, isHovered, onSelectLot }) => {
   );
 };
 
-// 🟢 MAIN COMPONENT
 function CustomMap({ lots, onSelectLot, hoveredLotId }) {
-  const [currentPosition, setCurrentPosition] = useState([18.5204, 73.8567]);
+  // ✅ FIX: Default to Armori (Your Coordinates)
+  const [currentPosition, setCurrentPosition] = useState([20.4733646, 79.9804463]);
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      const watchId = navigator.geolocation.watchPosition(
         (position) => {
+          // Update to live GPS if available
           setCurrentPosition([position.coords.latitude, position.coords.longitude]);
         },
-        (error) => console.log("Using default coordinates provided."),
-        { enableHighAccuracy: true }
+        (error) => console.warn("GPS Error (Using Default):", error.message),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
+      return () => navigator.geolocation.clearWatch(watchId);
     }
   }, []);
 
@@ -108,13 +97,13 @@ function CustomMap({ lots, onSelectLot, hoveredLotId }) {
           </Popup>
         </Marker>
 
-        {/* 🅿️ Parking Lots Rendered via Smart Marker */}
+        {/* 🅿️ Parking Lots */}
         {lots && lots.map((lot) => (
           <ParkingMarker 
             key={lot.id} 
             lot={lot} 
-            isHovered={lot.id === hoveredLotId} // 👈 Pass the hover state
-            onSelectLot={onSelectLot}           // 👈 Pass the booking handler
+            isHovered={lot.id === hoveredLotId} 
+            onSelectLot={onSelectLot}           
           />
         ))}
       </MapContainer>

@@ -121,12 +121,15 @@ function AddParkingLot() {
       return;
     }
 
+    // ✅ GET THE TOKEN FROM LOCAL STORAGE
+    const token = localStorage.getItem("token"); 
+
     // Construct Payload
     const payload = {
       name,
       address,
       description,
-      type, // 👈 Send the type to backend
+      type, 
       location: { latitude, longitude },
       parkingSlots: slots, 
       amenities: features,
@@ -135,14 +138,25 @@ function AddParkingLot() {
     console.log("Submitting Payload:", payload);
 
     try {
-      // ✅ CRITICAL FIX: Send ownerId in URL
-      await axios.post(`http://localhost:8080/api/parking-lots?ownerId=${ownerId}`, payload);
+      // ✅ ADDED AUTHORIZATION HEADER
+      await axios.post(
+        `http://localhost:8080/api/parking-lots?ownerId=${ownerId}`, 
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}` 
+          }
+        }
+      );
       
       alert("Parking Lot Added Successfully!");
       navigate("/admin-dashboard");
     } catch (error) {
       console.error(error);
-      alert("Failed to add parking lot");
+      // The Axios interceptor we discussed will handle the 401 redirect automatically
+      if (error.response?.status !== 401) {
+        alert("Failed to add parking lot");
+      }
     }
   };
 

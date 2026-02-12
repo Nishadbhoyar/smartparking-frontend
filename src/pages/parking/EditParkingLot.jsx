@@ -29,8 +29,6 @@ function LocationPicker({ setLocation }) {
 
 function EditParkingLot() {
   const navigate = useNavigate();
-  
-  // ✅ FIX: Match the route parameter name exactly ("lotId")
   const { lotId } = useParams(); 
 
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +50,6 @@ function EditParkingLot() {
 
   // ✅ FETCH DATA ON LOAD
   useEffect(() => {
-    // Safety check using the correct variable name
     if (!lotId || lotId === "undefined") {
         alert("Invalid Parking Lot ID");
         navigate("/admin-dashboard");
@@ -61,28 +58,45 @@ function EditParkingLot() {
 
     const fetchLot = async () => {
       try {
-        // ✅ Use lotId in the API call
-        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lotId}`);
+        // ✅ 1. Get token from localStorage
+        const token = localStorage.getItem("token");
+
+        // ✅ 2. Include Authorization header in the GET request
+        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lotId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
         const data = res.data;
 
         // Populate State
-        setName(data.name);
-        setAddress(data.address);
-        setDescription(data.description);
-        setLatitude(data.latitude);
-        setLongitude(data.longitude);
+        setName(data.name || "");
+        setAddress(data.address || "");
+        setDescription(data.description || "");
         
-        // Map Features
+        // Handle location mapping from backend structure
+        if (data.location) {
+            setLatitude(data.location.latitude);
+            setLongitude(data.location.longitude);
+        } else {
+            setLatitude(data.latitude);
+            setLongitude(data.longitude);
+        }
+        
+        // Map Features/Amenities
+        const amenities = data.amenities || {};
         setFeatures({
-          cctv: data.cctv,
-          security: data.security,
-          covered: data.covered,
-          evCharging: data.evCharging,
+          cctv: amenities.cctv || false,
+          security: amenities.security || false,
+          covered: amenities.covered || false,
+          evCharging: amenities.evCharging || false,
         });
 
         // Map Slots
-        if (data.slots && data.slots.length > 0) {
-            setSlots(data.slots);
+        const parkingSlots = data.parkingSlots || data.slots;
+        if (parkingSlots && parkingSlots.length > 0) {
+            setSlots(parkingSlots);
         } else {
             setSlots([{ vehicleType: "CAR", capacity: 0, price: 0 }]);
         }
@@ -90,8 +104,14 @@ function EditParkingLot() {
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching lot:", err);
-        alert("Could not load parking lot details.");
-        navigate("/admin-dashboard");
+        // ✅ 3. Handle unauthorized redirect
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate("/login");
+        } else {
+          alert("Could not load parking lot details.");
+          navigate("/admin-dashboard");
+        }
       }
     };
     fetchLot();
@@ -116,6 +136,8 @@ function EditParkingLot() {
   };
 
   const handleUpdate = async () => {
+    const token = localStorage.getItem("token"); // ✅ Get token for update
+
     const payload = {
       name, address, description,
       location: { latitude, longitude },
@@ -124,13 +146,22 @@ function EditParkingLot() {
     };
 
     try {
-      // ✅ Use lotId in the PUT request
-      await axios.put(`http://localhost:8080/api/parking-lots/${lotId}`, payload);
+      // ✅ 4. Include Authorization header in the PUT request
+      await axios.put(`http://localhost:8080/api/parking-lots/${lotId}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       alert("Parking Lot Updated Successfully!");
       navigate("/admin-dashboard");
     } catch (error) {
       console.error(error);
-      alert("Failed to update parking lot");
+      if (error.response?.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        alert("Failed to update parking lot");
+      }
     }
   };
 
@@ -148,7 +179,6 @@ function EditParkingLot() {
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-black text-slate-800">Edit Parking Lot</h2>
-        {/* ✅ Use lotId for display */}
         <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">ID: {lotId}</span>
       </div>
 
@@ -161,13 +191,13 @@ function EditParkingLot() {
             placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
         <textarea className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-medium text-slate-600"
-          rows="2" value={description} onChange={(e) => setDescription(e.target.value)} />
+          placeholder="Description" rows="2" value={description} onChange={(e) => setDescription(e.target.value)} />
       </div>
 
       {/* 2. Map */}
       <div className="mb-8">
         <h3 className="text-xl font-bold text-slate-700 mb-2">Location</h3>
-        <MapContainer center={[latitude || 18.5204, longitude || 73.8567]} zoom={15} className="h-64 rounded-xl border-2 border-slate-200">
+        <MapContainer center={[latitude || 18.5204, longitude || 73.8567]} zoom={15} className="h-64 rounded-xl border-2 border-slate-200 z-0">
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationPicker setLocation={(loc) => { setLatitude(loc.lat); setLongitude(loc.lng); }} />
           {latitude && longitude && <Marker position={[latitude, longitude]} />}
@@ -204,7 +234,7 @@ function EditParkingLot() {
         ))}
       </div>
 
-      <button onClick={handleUpdate} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-xl shadow-blue-200 flex justify-center items-center gap-2">
+      <button onClick={handleUpdate} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-xl shadow-blue-200 flex justify-center items-center gap-2 transition-all active:scale-95">
         <Save size={20} /> Update Parking Lot
       </button>
     </div>

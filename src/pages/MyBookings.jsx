@@ -1,32 +1,60 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ Fixed: Imported useNavigate
 import UserNavbar from "../components/navbar/UserNavbar";
 import { MapPin, Clock, History, Car } from "lucide-react";
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [activeTab, setActiveTab] = useState("current"); // 'current' or 'history'
-  const userId = localStorage.getItem("userId");
+  
+  // ✅ Fixed: Uncommented and initialized the hook
+  const navigate = useNavigate(); 
 
   useEffect(() => {
-    if (userId) {
-      axios.get(`http://localhost:8080/api/bookings/user/${userId}`)
-        .then(res => setBookings(res.data))
-        .catch(err => console.error(err));
-    }
-  }, [userId]);
+    const fetchBookings = async () => {
+      const userId = localStorage.getItem("userId");
+      const token = localStorage.getItem("token");
 
-  // ✅ OPEN MAPS FUNCTION (FIXED)
+      // Redirect if no credentials found
+      if (!userId || !token) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        // ✅ Fixed: Added Authorization Header for security
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
+        const res = await axios.get(`http://localhost:8080/api/bookings/user/${userId}`, config);
+        setBookings(res.data);
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+        
+        // ✅ Fixed: Auto-logout on 401 Unauthorized
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          navigate("/login");
+        }
+      }
+    };
+
+    fetchBookings();
+  }, [navigate]); // Added navigate to dependency array
+
+  // ✅ Fixed: Google Maps URL structure
   const openLocation = (lat, lng) => {
     if (!lat || !lng) {
       alert("Location not available yet.");
       return;
     }
-    // 👇 Correct URL structure
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=$${lat},${lng}`;
     window.open(url, "_blank");
   };
-  // ✅ FILTER LOGIC
+
+  // Filter Logic
   const currentBookings = bookings.filter(b => 
     ["PENDING", "CONFIRMED", "VALET_REQUESTED", "VALET_PICKED_UP", "PARKED"].includes(b.status)
   );
@@ -55,7 +83,7 @@ function MyBookings() {
               </p>
             </div>
 
-            {/* 🆕 TAB SWITCHER */}
+            {/* TAB SWITCHER */}
             <div className="flex bg-white/60 p-1 rounded-2xl border border-white/50 shadow-sm backdrop-blur-md">
               <button
                 onClick={() => setActiveTab("current")}

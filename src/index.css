@@ -118,3 +118,52 @@
 .animate-scale-in {
   animation: scale-in 0.5s ease-out;
 }
+
+/* react-datepicker custom theme – ParkWise edition */
+.custom-datepicker-calendar {
+  @apply bg-white/95 backdrop-blur-xl border-2 border-indigo-100 rounded-2xl shadow-2xl shadow-indigo-200/50 p-2 font-sans;
+}
+
+.custom-datepicker-calendar .react-datepicker__header {
+  @apply bg-gradient-to-r from-indigo-50 to-violet-50 border-b-0 rounded-t-xl pt-4;
+}
+
+.custom-datepicker-calendar .react-datepicker__current-month {
+  @apply text-sm font-black text-indigo-900 tracking-wider;
+}
+
+.custom-datepicker-calendar .react-datepicker__day-name {
+  @apply text-[10px] font-bold text-slate-400 uppercase w-8;
+}
+
+.custom-datepicker-calendar .react-datepicker__day {
+  @apply text-sm font-medium text-slate-700 rounded-lg hover:bg-indigo-100 hover:text-indigo-900 transition-all w-8 h-8 leading-8 m-0.5;
+}
+
+.custom-datepicker-calendar .react-datepicker__day--selected {
+  @apply bg-gradient-to-br from-indigo-600 to-violet-600 text-white font-bold shadow-lg shadow-indigo-300;
+}
+
+.custom-datepicker-calendar .react-datepicker__day--keyboard-selected {
+  @apply bg-indigo-200 text-indigo-900;
+}
+
+.custom-datepicker-calendar .react-datepicker__time-container {
+  @apply border-l border-slate-200;
+}
+
+.custom-datepicker-calendar .react-datepicker__time-box {
+  @apply w-full;
+}
+
+.custom-datepicker-calendar .react-datepicker__time-list-item {
+  @apply text-sm py-2 hover:bg-indigo-50 transition-colors;
+}
+
+.custom-datepicker-calendar .react-datepicker__time-list-item--selected {
+  @apply bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold !important;
+}
+
+.custom-datepicker-popper {
+  @apply pt-2;
+}

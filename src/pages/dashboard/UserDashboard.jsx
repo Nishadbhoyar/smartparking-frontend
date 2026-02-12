@@ -1,6 +1,8 @@
+
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf"; // Added for PDF generation
 import {
   Car,
   Clock,
@@ -42,64 +44,120 @@ function UserDashboard() {
 
   const navigate = useNavigate();
 
-  // Calculate user stats
+  // PDF Generation Logic
+  const generatePaySlip = (vehicleDetails) => {
+    const doc = new jsPDF();
+    // Unique code connected to particular user using ID and Timestamp
+    const uniqueCode = `PRK-${userId}-${Date.now().toString().slice(-6)}`;
+
+    // Slip Header
+    doc.setFontSize(22);
+    doc.setTextColor(37, 99, 235);
+    doc.text("PARKING PAY SLIP", 105, 30, { align: "center" });
+
+    // Details Section
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`Date: ${new Date().toLocaleString()}`, 20, 50);
+    doc.text(`User ID: ${userId}`, 20, 60);
+    
+    doc.setDrawColor(200);
+    doc.line(20, 65, 190, 65);
+
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text("Vehicle Information", 20, 80);
+    doc.setFontSize(12);
+    doc.text(`Number: ${vehicleDetails.vehicleNumber}`, 20, 90);
+    doc.text(`Model: ${vehicleDetails.vehicleModel}`, 20, 100);
+    doc.text(`Contact: ${vehicleDetails.contactNumber}`, 20, 110);
+
+    // Unique Code Box
+    doc.setFillColor(248, 250, 252);
+    doc.rect(20, 130, 170, 30, 'F');
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text(`VERIFICATION CODE: ${uniqueCode}`, 105, 150, { align: "center" });
+
+    doc.save(`ParkingSlip_${uniqueCode}.pdf`);
+  };
+
   const calculateStats = useCallback(() => {
-    // In a real app, these would come from API
     const bookings = 12;
     const hours = 36;
     const savings = 240;
-    
     setStats({ bookings, hours, savings });
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
+  // REPLACE your existing fetchUserAndLots function with this:
     const fetchUserAndLots = async () => {
       setLoading(true);
       try {
-        const userRes = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true
-        });
+        // 1. Retrieve the token
+        const token = localStorage.getItem("token");
 
-        const userData = userRes.data;
-        if (userData && userData.email) {
+        // 🚨 DEBUG LOGS: Open your browser Console (F12) to see these
+// console.log("1. Token from Storage:", token); 
+// console.log("2. Is Token valid string?", typeof token === 'string' && token.length > 10);
+        
+        // 2. If no token, force login immediately
+        if (!token || token === "undefined" || token === "null") {
+  console.error("❌ Token is missing or invalid!");
+  navigate("/login");
+  return;
+}
+
+        // 3. Define the config with the Header
+        // ⚠️ CRITICAL: This is what was missing/broken
+        const config = {
+  headers: { Authorization: `Bearer ${token}` },
+  withCredentials: true
+};
+
+        // 4. Use Promise.all to fetch both endpoints in parallel
+        // Notice we pass 'config' as the second argument to BOTH calls
+        const [userRes, lotsRes] = await Promise.all([
+          axios.get("http://localhost:8080/api/users/me", config),
+          axios.get("http://localhost:8080/api/parking-lots", config)
+        ]);
+
+        // 5. Update State with the results
+        if (userRes.data) {
+          const userData = userRes.data;
           setUserId(userData.id);
           localStorage.setItem("userId", userData.id);
-          localStorage.setItem("role", userData.role);
-
+          
           if (!userData.phoneNumber) {
-            setProfileData({
-              name: userData.name || "",
-              email: userData.email,
-              phoneNumber: "",
-              password: ""
-            });
-            setShowProfileModal(true);
-          }
-        } else {
-          const localId = localStorage.getItem("userId");
-          if (!localId) { navigate("/login"); return; }
-          setUserId(localId);
+             setProfileData({
+               name: userData.name || "",
+               email: userData.email,
+               phoneNumber: "",
+               password: ""
+             });
+             setShowProfileModal(true);
+           }
         }
-
-        const lotsRes = await axios.get("http://localhost:8080/api/parking-lots");
-        if (lotsRes.data && Array.isArray(lotsRes.data)) {
+        
+        if (lotsRes.data) {
           setLots(lotsRes.data);
         }
         
         calculateStats();
+
       } catch (err) {
         console.error("Auth/Fetch Error:", err);
+        
+        // 6. Handle 401 (Expired Token) automatically
         if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
           navigate("/login");
-        } else {
-          const localId = localStorage.getItem("userId");
-          if (localId) setUserId(localId);
         }
       } finally {
         setLoading(false);
       }
     };
-
     fetchUserAndLots();
 
     if (navigator.geolocation) {
@@ -108,7 +166,7 @@ function UserDashboard() {
         err => console.error("Location error:", err)
       );
     }
-  }, [navigate]);
+  }, [navigate, calculateStats]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -225,7 +283,6 @@ function UserDashboard() {
 
       <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/5 to-slate-50 p-4 md:p-8 ${showProfileModal ? 'blur-sm' : ''}`}>
         <div className="relative z-10">
-          {/* HEADER */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
@@ -252,7 +309,6 @@ function UserDashboard() {
             </div>
           </div>
 
-          {/* USER STATS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-2xl border border-slate-200 p-6">
               <div className="flex items-center gap-4">
@@ -442,6 +498,7 @@ function UserDashboard() {
                   userId={userId} 
                   currentPosition={currentPosition} 
                   setWatchId={() => {}}
+                  onDownload={generatePaySlip} // Pass the PDF function down
                 />
               </div>
             </div>
@@ -456,7 +513,6 @@ function UserDashboard() {
   );
 }
 
-// Updated ParkingLotCard component
 function ParkingLotCard({ lot, isPaused, index, hoveredLotId, setHoveredLotId, setSelectedLot }) {
   return (
     <div
@@ -524,7 +580,6 @@ function ParkingLotCard({ lot, isPaused, index, hoveredLotId, setHoveredLotId, s
   );
 }
 
-// Updated OptionCard component
 function OptionCard({ title, icon, description, onClick, disabled, color }) {
   const colorClasses = {
     blue: "from-blue-500 to-indigo-500",
@@ -565,8 +620,7 @@ function OptionCard({ title, icon, description, onClick, disabled, color }) {
   );
 }
 
-// Updated ValetRequestPanel component
-function ValetRequestPanel({ userId, currentPosition, setWatchId }) {
+function ValetRequestPanel({ userId, currentPosition, setWatchId, onDownload }) {
   const [status, setStatus] = useState("IDLE");
   const [vehicleDetails, setVehicleDetails] = useState({
     vehicleNumber: "",
@@ -574,6 +628,7 @@ function ValetRequestPanel({ userId, currentPosition, setWatchId }) {
     contactNumber: ""
   });
 
+  // ✅ THIS FUNCTION WAS MISSING. I HAVE ADDED IT BACK.
   const handleInputChange = (e) => {
     setVehicleDetails({ ...vehicleDetails, [e.target.name]: e.target.value });
   };
@@ -584,12 +639,32 @@ function ValetRequestPanel({ userId, currentPosition, setWatchId }) {
       alert("Getting your location... Please wait.");
       return;
     }
+
     setStatus("REQUESTING");
-    
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const token = localStorage.getItem("token");
+      
+      // ✅ This includes the fix for the 400 Error (Nested User Object)
+      await axios.post("http://localhost:8080/api/bookings", {
+        user: { id: userId }, 
+        vehicleNumber: vehicleDetails.vehicleNumber,
+        vehicleModel: vehicleDetails.vehicleModel,
+        contactNumber: vehicleDetails.contactNumber,
+        pickupLat: currentPosition.lat,
+        pickupLng: currentPosition.lng,
+        status: "VALET_REQUESTED",
+        serviceType: "VALET"
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       setStatus("WAITING");
-    }, 2000);
+    } catch (err) {
+      console.error("Valet Request Failed:", err);
+      setStatus("FORM"); 
+      alert("Server Error: Could not send request. Check console for details.");
+    }
   };
 
   return (
@@ -710,6 +785,15 @@ function ValetRequestPanel({ userId, currentPosition, setWatchId }) {
                 <span className="font-medium text-emerald-600">Waiting for valet</span>
               </div>
             </div>
+
+            {/* Added Download Button */}
+            <button
+              onClick={() => onDownload(vehicleDetails)}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3.5 rounded-xl hover:shadow-lg hover:shadow-emerald-500/30 transition-all"
+            >
+              <CreditCard className="w-5 h-5" />
+              Download Pay Slip
+            </button>
           </div>
         )}
       </div>

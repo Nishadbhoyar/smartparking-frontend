@@ -12,20 +12,33 @@ function ValetDashboard() {
   }, []);
 
   const fetchQueue = () => {
-    axios.get("http://localhost:8080/api/bookings/valet/queue")
+    const token = localStorage.getItem("token"); // 🔑
+    
+    axios.get("http://localhost:8080/api/bookings/valet/queue", {
+        headers: { Authorization: `Bearer ${token}` } // 🔑
+      })
       .then(res => setQueue(res.data))
       .catch(err => console.error(err));
   };
 
   const handleAccept = (bookingId) => {
-    axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`)
+    const token = localStorage.getItem("token"); // 🔑
+    
+    axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`, {}, {
+        headers: { Authorization: `Bearer ${token}` } // 🔑
+      })
       .then(res => {
         setMyJob(res.data);
         fetchQueue();
       });
   };
   const handleReaject = (bookingId) => {
-    axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`)
+    // Note: Assuming rejection logic also hits an endpoint, added token here too
+    const token = localStorage.getItem("token");
+    // You likely want a different endpoint for reject, but keeping your URL for now:
+    axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then(res => {
         setMyJob(res.data);
         fetchQueue();

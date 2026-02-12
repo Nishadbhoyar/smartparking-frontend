@@ -6,6 +6,7 @@ import {
   BarChart3,
   Building2,
   Calendar,
+  Car, 
   DollarSign,
   Download,
   Filter,
@@ -71,9 +72,15 @@ function AdminDashboard() {
       setLots((prev) => 
         prev.map((lot) => lot.id === lotId ? { ...lot, status: newStatus } : lot)
       );
+      
+      const token = localStorage.getItem("token"); // 🔑 Get Token
+      
       await axios.patch(`http://localhost:8080/api/parking-lots/${lotId}/status`, 
         { status: newStatus }, 
-        { withCredentials: true }
+        { 
+          headers: { Authorization: `Bearer ${token}` }, // 🔑 Attach Token
+          withCredentials: true 
+        }
       );
     } catch (err) {
       alert("Failed to update status. Reverting change.");
@@ -83,22 +90,43 @@ function AdminDashboard() {
     }
   };
 
-  const fetchData = async () => {
+const fetchData = async () => {
     try {
       setLoading(true);
       const userStr = localStorage.getItem("user");
+      // ✅ 1. Get the JWT token from storage
+      const token = localStorage.getItem("token"); 
+      
       let adminId = null;
       if (userStr) {
         const user = JSON.parse(userStr);
         adminId = user.id;
       }
 
-      if (!adminId) return;
+      if (!adminId || !token) {
+        console.warn("Missing credentials, redirecting...");
+        navigate("/login");
+        return;
+      }
       
+      // ✅ 2. Create the Auth configuration
+      const config = {
+        params: { adminId }, // Keep existing params
+        headers: {
+          Authorization: `Bearer ${token}` // Add the JWT
+        },
+        withCredentials: true
+      };
+
+      // ✅ 3. Apply the config to all requests in Promise.all
       const [bookingsRes, lotsRes, earningsRes] = await Promise.all([
-        axios.get(`http://localhost:8080/api/bookings/admin`, { params: { adminId }, withCredentials: true }),
-        axios.get(`http://localhost:8080/api/parking-lots`, { params: { ownerId: adminId }, withCredentials: true }),
-        axios.get(`http://localhost:8080/api/bookings/earnings`, { params: { adminId }, withCredentials: true })
+        axios.get(`http://localhost:8080/api/bookings/admin`, config),
+        axios.get(`http://localhost:8080/api/parking-lots`, { 
+          params: { ownerId: adminId }, 
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true 
+        }),
+        axios.get(`http://localhost:8080/api/bookings/earnings`, config)
       ]);
 
       setAllBookings(bookingsRes.data);
@@ -108,6 +136,9 @@ function AdminDashboard() {
     } catch (err) {
       console.error("Error fetching data:", err);
       if (err.response?.status === 401) {
+        // ✅ 4. Clean up storage if token is invalid/expired
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/login");
       }
     } finally {
@@ -135,15 +166,26 @@ function AdminDashboard() {
     return () => clearInterval(interval);
   }, [navigate]);
 
+  // 2. FIX: Release Vehicle Logic (This caused the error in your screenshot)
   const handleRelease = async (id) => {
     if (window.confirm("Mark this vehicle as 'Left Parking'?")) {
       try {
-        await axios.post(`http://localhost:8080/api/bookings/${id}/release`, {}, { withCredentials: true });
+        const token = localStorage.getItem("token"); // 🔑 Get Token
+
+        await axios.post(`http://localhost:8080/api/bookings/${id}/release`, 
+          {}, 
+          { 
+            headers: { Authorization: `Bearer ${token}` }, // 🔑 Attach Token
+            withCredentials: true 
+          }
+        );
+        
         setAllBookings((prev) =>
           prev.map((b) => (b.id === id ? { ...b, status: "LEFT_PARKING" } : b))
         );
         alert("Car status updated!");
       } catch (err) {
+        console.error(err);
         alert("Failed to update status.");
       }
     }
@@ -152,10 +194,19 @@ function AdminDashboard() {
   const handleDeleteLot = async (lotId) => {
     if (window.confirm("Are you sure you want to delete this parking lot?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/parking-lots/${lotId}`, { withCredentials: true });
+        // 1. Get the token
+        const token = localStorage.getItem("token");
+
+        // 2. Send request WITH the token in headers
+        await axios.delete(`http://localhost:8080/api/parking-lots/${lotId}`, { 
+          headers: { Authorization: `Bearer ${token}` }, // 👈 This was missing
+          withCredentials: true 
+        });
+        
         setLots((prev) => prev.filter((lot) => lot.id !== lotId));
         alert("Parking lot deleted successfully!");
       } catch (err) {
+        console.error("Delete failed:", err);
         alert("Failed to delete parking lot.");
       }
     }
