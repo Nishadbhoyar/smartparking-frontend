@@ -895,7 +895,7 @@ function Login() {
   const handlePasswordLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
+      const res = await axios.post("http://51.21.244.207:8080/api/auth/login", { email, password });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid Credentials"); }
