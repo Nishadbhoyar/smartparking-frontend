@@ -895,7 +895,7 @@ function Login() {
   const handlePasswordLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://backend-1564114149.eu-north-1.elb.amazonaws.com/api/auth/login", { email, password });
+      const res = await axios.post("https://backend-1564114149.eu-north-1.elb.amazonaws.com/api/auth/login", { email, password });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid Credentials"); }
