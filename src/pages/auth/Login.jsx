@@ -877,7 +877,7 @@ function Login() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault(); setLoading(true);
-    try { await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email }); setStep(2); }
+    try { await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email }); setStep(2); }
     catch { alert("Failed to send OTP."); }
     finally { setLoading(false); }
   };
