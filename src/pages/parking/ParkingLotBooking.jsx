@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Car, Clock, CreditCard, X, Phone, FileText, ArrowRight, MapPin } from "lucide-react";
-// import PaymentButton from './PaymentButton';
+import PaymentButton from './PaymentButton';
 
 function ParkingLotBooking({ lot, user, onClose }) {
   const navigate = useNavigate();
