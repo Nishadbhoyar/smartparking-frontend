@@ -64,6 +64,17 @@ function AdminDashboard() {
   //   }
   // };
 
+  const handleLogout = () => {
+    // Clear the saved user session from the browser
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    
+    // Send the user back to the login page
+    navigate("/login");
+  };
+
   const handleToggleStatus = async (lotId, currentStatus) => {
     const statusToCheck = currentStatus || "ACTIVE";
     const newStatus = statusToCheck === "PAUSED" ? "ACTIVE" : "PAUSED";
