@@ -62,7 +62,7 @@ function EditParkingLot() {
         const token = localStorage.getItem("token");
 
         // ✅ 2. Include Authorization header in the GET request
-        const res = await axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, {
+        const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -147,7 +147,7 @@ function EditParkingLot() {
 
     try {
       // ✅ 4. Include Authorization header in the PUT request
-      await axios.put(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, payload, {
+      await axios.put(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, payload, {
         headers: {
           Authorization: `Bearer ${token}`
         }

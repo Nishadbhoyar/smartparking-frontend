@@ -3,7 +3,7 @@ import axios from "axios";
 function ValetBookingModal({ user, currentPosition, onClose }) {
 
   const handleSubmit = async () => {
-    await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", {
+    await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", {
       user: { id: user.id },
       serviceType: "VALET",
       status: "VALET_REQUESTED",

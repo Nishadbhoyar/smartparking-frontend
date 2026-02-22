@@ -28,7 +28,7 @@ function MyBookings() {
           headers: { Authorization: `Bearer ${token}` }
         };
 
-        const res = await axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/user/${userId}`, config);
+        const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/user/${userId}`, config);
         setBookings(res.data);
       } catch (err) {
         console.error("Error fetching bookings:", err);

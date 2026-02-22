@@ -36,7 +36,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
       try {
         const token = localStorage.getItem("token");
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const res = await axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lot.id}`, config);
+        const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lot.id}`, config);
         setFullLotData(res.data);
       } catch (err) {
         if (err.response?.status === 401) navigate("/login");
@@ -96,7 +96,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
     };
 
     try {
-      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
+      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
       alert("Booking & Payment Successful! 🎟️");
       navigate("/user-dashboard");
     } catch (err) {
@@ -128,7 +128,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
     };
 
     try {
-      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
+      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
       alert("Booking Successful! 🎟️");
       navigate("/user-dashboard");
     } catch (err) {

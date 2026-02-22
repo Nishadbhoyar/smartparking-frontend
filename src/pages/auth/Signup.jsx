@@ -501,7 +501,7 @@ function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/signup", formData);
+      await axios.post("https://smartparking-backend-1.onrender.com/api/auth/signup", formData);
       alert("✅ Registration successful! Please login.");
       navigate("/login");
     } catch (error) {

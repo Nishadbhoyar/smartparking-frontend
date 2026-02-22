@@ -258,7 +258,7 @@ function SelfParking() {
         return;
     }
     try {
-      await axios.post(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/create`, {
+      await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/create`, {
         lotId: lotId,
         userLat: userLocation[0],
         userLng: userLocation[1]

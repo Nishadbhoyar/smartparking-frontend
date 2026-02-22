@@ -885,7 +885,7 @@ function Login() {
   const handleOtpLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/verify-otp", { email, otp });
+      const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/verify-otp", { email, otp });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid OTP!"); }
@@ -895,7 +895,7 @@ function Login() {
   const handlePasswordLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/login", { email, password });
+      const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/login", { email, password });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid Credentials"); }
@@ -905,7 +905,7 @@ function Login() {
   const handleSendMagicLink = async () => {
     if (!email) { alert("Please enter your email address first."); return; }
     setLoading(true);
-    try { await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", { email }); alert("✨ Magic Link Sent! Check your email."); }
+    try { await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", { email }); alert("✨ Magic Link Sent! Check your email."); }
     catch { alert("Failed to send magic link. Please try again."); }
     finally { setLoading(false); }
   };
@@ -913,7 +913,7 @@ function Login() {
   const handleResetPassword = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/reset-password", { email, otp, newPassword });
+      await axios.post("https://smartparking-backend-1.onrender.com/api/auth/reset-password", { email, otp, newPassword });
       alert("Password reset! Please login.");
       setView("login"); setLoginMethod("password"); setStep(1);
     } catch { alert("Failed to reset."); }
