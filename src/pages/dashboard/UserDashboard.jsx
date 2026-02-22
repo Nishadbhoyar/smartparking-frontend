@@ -200,8 +200,14 @@ function UserDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+    // Clear all saved user data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    
+    // Send them back to the login screen
+    navigate("/login");
   };
 
   return (
