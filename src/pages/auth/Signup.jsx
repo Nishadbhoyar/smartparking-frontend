@@ -497,8 +497,36 @@ function Signup() {
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // 🇮🇳 Validation Helpers
+  const validateEmail = (email) => {
+    const lowerEmail = email.toLowerCase();
+    if (lowerEmail.includes("@gamil.com") || lowerEmail.includes("@gmai.com")) {
+      return "Did you mean @gmail.com?";
+    }
+    if (lowerEmail.includes("@yaho.com")) {
+      return "Did you mean @yahoo.com?";
+    }
+    return null; // Valid
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      return "Please enter a valid 10-digit Indian mobile number.";
+    }
+    return null; // Valid
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
+    
+    // 1. Run Validations before touching the backend!
+    const emailError = validateEmail(formData.email);
+    if (emailError) return alert(`❌ Email Typo: ${emailError}`);
+    
+    const phoneError = validatePhone(formData.phoneNumber);
+    if (phoneError) return alert(`❌ Invalid Phone: ${phoneError}`);
+
     setLoading(true);
     try {
       await axios.post("https://smartparking-backend-1.onrender.com/api/auth/signup", formData);

@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../components/navbar/AdminNavbar";
@@ -26,6 +27,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("week");
   const [selectedFilters, setSelectedFilters] = useState([]);
+  const [chartData, setChartData] = useState([]);
   const [stats, setStats] = useState({
     occupancy: 0,
     growth: 0,
@@ -51,18 +53,6 @@ function AdminDashboard() {
       avgTime
     });
   }, [lots, allBookings]);
-
-  // Handle logout
-  // const handleLogout = async () => {
-  //   try {
-  //     await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/logout", {}, { withCredentials: true });
-  //   } catch (error) {
-  //     console.error("Logout failed", error);
-  //   } finally {
-  //     localStorage.clear();
-  //     navigate("/");
-  //   }
-  // };
 
   const handleLogout = () => {
     // Clear the saved user session from the browser
@@ -103,9 +93,8 @@ function AdminDashboard() {
 
 const fetchData = async () => {
     try {
-      setLoading(true);
+      // Removed setLoading(true) to prevent screen flickering on refresh
       const userStr = localStorage.getItem("user");
-      // ✅ 1. Get the JWT token from storage
       const token = localStorage.getItem("token"); 
       
       let adminId = null;
@@ -120,38 +109,44 @@ const fetchData = async () => {
         return;
       }
       
-      // ✅ 2. Create the Auth configuration
       const config = {
-        params: { adminId }, // Keep existing params
+        params: { adminId }, 
         headers: {
-          Authorization: `Bearer ${token}` // Add the JWT
+          Authorization: `Bearer ${token}` 
         },
         withCredentials: true
       };
 
-      // ✅ 3. Apply the config to all requests in Promise.all
-      const [bookingsRes, lotsRes, earningsRes] = await Promise.all([
+      // 🔥 FIX: Apply allSettled to prevent the disappearing lots bug
+      const results = await Promise.allSettled([
         axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/admin`, config),
         axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots`, { 
           params: { ownerId: adminId }, 
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true 
         }),
-        axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/earnings`, config)
+        axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/earnings`, config),
+        axios.get(`https://smartparking-backend-1.onrender.com/api/admin/stats/dashboard`, config)
       ]);
 
-      setAllBookings(bookingsRes.data);
-      setLots(lotsRes.data);
-      setTotalRevenue(earningsRes.data);
+      if (results[0].status === "fulfilled") setAllBookings(results[0].value.data);
+      if (results[1].status === "fulfilled") setLots(results[1].value.data);
+      if (results[2].status === "fulfilled") setTotalRevenue(results[2].value.data);
+      // 🔥 ADD THESE TWO LINES to process the stats:
+      if (results[3].status === "fulfilled") {
+        setChartData(results[3].value.data.chartData);
+        setStats(prev => ({ ...prev, growth: results[3].value.data.growthPercentage }));
+      }
+      
       calculateStats();
     } catch (err) {
       console.error("Error fetching data:", err);
       if (err.response?.status === 401) {
-        // ✅ 4. Clean up storage if token is invalid/expired
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         navigate("/login");
       }
+      
     } finally {
       setLoading(false);
     }
@@ -176,8 +171,7 @@ const fetchData = async () => {
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [navigate]);
-
-  // 2. FIX: Release Vehicle Logic (This caused the error in your screenshot)
+  // 2. FIX: Release Vehicle Logic
   const handleRelease = async (id) => {
     if (window.confirm("Mark this vehicle as 'Left Parking'?")) {
       try {
@@ -224,8 +218,30 @@ const fetchData = async () => {
   };
 
   const handleExportData = () => {
-    // In a real app, this would generate and download a CSV/Excel file
-    alert("Export functionality would download data in this implementation");
+    if (allBookings.length === 0) return alert("No data to export!");
+    
+    const headers = ["Booking ID", "Vehicle Number", "Customer Name", "Location", "Status", "Amount", "Start Time"];
+    const csvRows = [headers.join(",")];
+
+    allBookings.forEach(b => {
+      const row = [
+        b.id,
+        b.vehicleNumber || "N/A",
+        b.driverName || "Guest",
+        b.parkingLot?.name || "Unknown",
+        b.status,
+        b.totalAmount || 0,
+        new Date(b.startTime).toLocaleString()
+      ];
+      csvRows.push(row.map(cell => `"${cell}"`).join(",")); 
+    });
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Parking_Report_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
   };
 
   const activeData = allBookings.filter(b => ["PARKED", "CONFIRMED", "VALET_PICKED_UP", "VALET_REQUESTED"].includes(b.status));
@@ -238,6 +254,14 @@ const fetchData = async () => {
     { id: "month", label: "This Month" },
     { id: "year", label: "This Year" }
   ];
+  // 🔥 NEW: Calculate real time spent for the tables
+  const calculateDuration = (startTime, endTime) => {
+    if (!startTime) return "N/A";
+    const start = new Date(startTime);
+    const end = endTime ? new Date(endTime) : new Date(); // Use current time if still parked
+    const diffHrs = ((end - start) / (1000 * 60 * 60)).toFixed(1);
+    return `${Math.max(0, diffHrs)} hours`;
+  };
 
   return (
     <>
@@ -350,14 +374,29 @@ const fetchData = async () => {
                 </div>
                 
                 {/* Chart placeholder */}
-                <div className="h-64 flex items-center justify-center bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-xl border border-slate-100">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BarChart3 className="w-8 h-8 text-blue-600" />
-                    </div>
-                    <p className="text-slate-600 font-medium">Revenue chart visualization</p>
-                    <p className="text-sm text-slate-400 mt-1">Interactive chart would appear here</p>
-                  </div>
+                <div className="h-72 w-full mt-4">
+                  {chartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(value) => `₹${value}`} />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          formatter={(value) => [`₹${value}`, 'Revenue']}
+                        />
+                        <Area type="monotone" dataKey="revenue" stroke="#4F46E5" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-slate-400">Loading chart data...</div>
+                  )}
                 </div>
               </div>
             </div>
