@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Car, Clock, CreditCard, X, Phone, FileText, ArrowRight, MapPin } from "lucide-react";
-import PaymentButton from './PaymentButton';
+import { Car, CreditCard, X, Phone, ArrowRight, MapPin } from "lucide-react";
 
 function ParkingLotBooking({ lot, user, onClose }) {
   const navigate = useNavigate();
 
-  // --- LOGIC REMAINS EXACTLY THE SAME ---
   const [selectedVehicle, setSelectedVehicle] = useState("CAR");
   const [fullLotData, setFullLotData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -72,39 +70,6 @@ function ParkingLotBooking({ lot, user, onClose }) {
     const offset = newEnd.getTimezoneOffset() * 60000;
     setEndTime(new Date(newEnd.getTime() - offset).toISOString().slice(0, 16));
   };
-  const handleBookingSuccess = async (paymentId) => {
-    // Validation is done by the button disabled state, but good to double check
-    if (!vehicleNumber.trim() || !phoneNumber.trim()) return alert("Please enter details");
-
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    const config = { headers: { Authorization: `Bearer ${token}` } };
-
-    const bookingData = {
-      user: { id: user.id },
-      lot: { id: lot.id },
-      vehicleType: selectedVehicle,
-      vehicleNumber: vehicleNumber.toUpperCase(),
-      contactNumber: phoneNumber,
-      serviceType: "SELF",
-      status: "CONFIRMED",
-      paymentStatus: "PAID", // Add this field if your DB supports it
-      paymentId: paymentId,  // Save the Razorpay ID
-      startTime: new Date(startTime).toISOString(),
-      endTime: new Date(endTime).toISOString(),
-      totalAmount: totalPrice
-    };
-
-    try {
-      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
-      alert("Booking & Payment Successful! 🎟️");
-      navigate("/user-dashboard");
-    } catch (err) {
-      alert("Booking Failed: " + (err.response?.data || "Error"));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleConfirmBooking = async () => {
     if (!vehicleNumber.trim() || !phoneNumber.trim()) return alert("Please enter details");
@@ -140,16 +105,13 @@ function ParkingLotBooking({ lot, user, onClose }) {
 
   if (fetchingData) return null;
 
-  // --- COMPACT JSX STARTS HERE ---
   return (
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in zoom-in-95 duration-200">
-      {/* Reduced Max Width to 3xl and rounded corners */}
       <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh]">
         
         {/* === LEFT PANEL === */}
         <div className="flex-1 p-6 overflow-y-auto no-scrollbar">
             
-            {/* Header - Compact */}
             <div className="flex justify-between items-start mb-5">
                 <div>
                     <h2 className="text-xl font-black text-slate-800 tracking-tight">Reserve Spot</h2>
@@ -163,7 +125,6 @@ function ParkingLotBooking({ lot, user, onClose }) {
                 </button>
             </div>
 
-            {/* 1. Vehicle Type - Smaller Grid */}
             <div className="mb-6">
                 <div className="grid grid-cols-3 gap-3">
                     {[
@@ -191,10 +152,8 @@ function ParkingLotBooking({ lot, user, onClose }) {
                 </div>
             </div>
 
-            {/* 2. Timeline - Tighter Spacing */}
             <div className="mb-6">
                  <div className="relative pl-4 border-l-2 border-dashed border-slate-200 space-y-3">
-                    {/* Arrive */}
                     <div className="relative">
                         <div className="absolute -left-[21px] top-3 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-white"></div>
                         <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-200 transition-all">
@@ -208,7 +167,6 @@ function ParkingLotBooking({ lot, user, onClose }) {
                         </div>
                     </div>
 
-                    {/* Quick Pills */}
                     <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar pl-1">
                         {[1, 2, 3, 4, 12, 24].map(h => (
                             <button key={h} onClick={() => handleQuickDuration(h)}
@@ -219,7 +177,6 @@ function ParkingLotBooking({ lot, user, onClose }) {
                         ))}
                     </div>
 
-                    {/* Leave */}
                     <div className="relative">
                         <div className="absolute -left-[21px] top-3 w-3 h-3 bg-rose-500 rounded-full ring-2 ring-white"></div>
                         <div className="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-200 transition-all">
@@ -235,7 +192,6 @@ function ParkingLotBooking({ lot, user, onClose }) {
                  </div>
             </div>
 
-            {/* 3. Details - Compact Inputs */}
             <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-2">
                     <Car className="text-slate-300 w-4 h-4" />
@@ -291,21 +247,20 @@ function ParkingLotBooking({ lot, user, onClose }) {
                 )}
             </div>
 
-            {/* ... inside the render return ... */}
+            <div className="mt-6 space-y-2">
+                <button
+                    onClick={handleConfirmBooking}
+                    disabled={loading || !isVehicleAvailable || !vehicleNumber || !phoneNumber || totalPrice <= 0}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                    {loading ? "Processing..." : "Confirm Booking"}
+                    {!loading && <ArrowRight className="w-4 h-4" />}
+                </button>
 
-<div className="mt-6 space-y-2">
-    <PaymentButton 
-        amount={totalPrice}
-        bookingData={{ contactNumber: phoneNumber }}
-        onSuccess={handleBookingSuccess} 
-        disabled={loading || !isVehicleAvailable || !vehicleNumber || !phoneNumber || totalPrice <= 0}
-    />
-
-    {/* CHANGE THIS FROM <p> TO <div> */}
-    <div className="text-center text-[9px] text-slate-400 font-medium flex items-center justify-center gap-1">
-        <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> SSL Secure Payment
-    </div>
-</div>
+                <div className="text-center text-[9px] text-slate-400 font-medium flex items-center justify-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> Instant Confirmation
+                </div>
+            </div>
         </div>
       </div>
     </div>
