@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, KeyRound, Loader2, Sparkles, Car, ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
+import React, { useEffect } from 'react';
 
 /* ─── Design Tokens (identical to Landing Page) ───────────────────── */
 const C = {
