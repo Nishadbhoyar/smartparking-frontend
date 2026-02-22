@@ -50,7 +50,7 @@ function MyBookings() {
       alert("Location not available yet.");
       return;
     }
-    const url = `https://www.google.com/maps/search/?api=1&query=$${lat},${lng}`;
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
     window.open(url, "_blank");
   };
 
