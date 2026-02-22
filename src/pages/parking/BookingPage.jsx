@@ -27,7 +27,7 @@ function BookingPage() {
     setUser(userData);
 
     // Fetch parking lot details
-    axios.get(`http://localhost:8080/api/parking-lots/${lotId}`)
+    axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`)
       .then((response) => {
         setLot(response.data);
         setLoading(false);
@@ -61,7 +61,7 @@ function BookingPage() {
     };
 
     try {
-      const response = await axios.post("http://localhost:8080/api/bookings", bookingData);
+      const response = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", bookingData);
       alert(`Booking Confirmed! ✅ Booking ID: #${response.data.id}`);
       navigate("/dashboard");
     } catch (error) {

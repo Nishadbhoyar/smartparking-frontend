@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Car, Clock, CreditCard, X, Phone, FileText, ArrowRight, MapPin } from "lucide-react";
+// import PaymentButton from './PaymentButton';
 
 function ParkingLotBooking({ lot, user, onClose }) {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
       try {
         const token = localStorage.getItem("token");
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`, config);
+        const res = await axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lot.id}`, config);
         setFullLotData(res.data);
       } catch (err) {
         if (err.response?.status === 401) navigate("/login");
@@ -71,6 +72,39 @@ function ParkingLotBooking({ lot, user, onClose }) {
     const offset = newEnd.getTimezoneOffset() * 60000;
     setEndTime(new Date(newEnd.getTime() - offset).toISOString().slice(0, 16));
   };
+  const handleBookingSuccess = async (paymentId) => {
+    // Validation is done by the button disabled state, but good to double check
+    if (!vehicleNumber.trim() || !phoneNumber.trim()) return alert("Please enter details");
+
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+
+    const bookingData = {
+      user: { id: user.id },
+      lot: { id: lot.id },
+      vehicleType: selectedVehicle,
+      vehicleNumber: vehicleNumber.toUpperCase(),
+      contactNumber: phoneNumber,
+      serviceType: "SELF",
+      status: "CONFIRMED",
+      paymentStatus: "PAID", // Add this field if your DB supports it
+      paymentId: paymentId,  // Save the Razorpay ID
+      startTime: new Date(startTime).toISOString(),
+      endTime: new Date(endTime).toISOString(),
+      totalAmount: totalPrice
+    };
+
+    try {
+      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
+      alert("Booking & Payment Successful! 🎟️");
+      navigate("/user-dashboard");
+    } catch (err) {
+      alert("Booking Failed: " + (err.response?.data || "Error"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConfirmBooking = async () => {
     if (!vehicleNumber.trim() || !phoneNumber.trim()) return alert("Please enter details");
@@ -94,7 +128,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
     };
 
     try {
-      await axios.post("http://localhost:8080/api/bookings", bookingData, config);
+      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
       alert("Booking Successful! 🎟️");
       navigate("/user-dashboard");
     } catch (err) {
@@ -257,25 +291,21 @@ function ParkingLotBooking({ lot, user, onClose }) {
                 )}
             </div>
 
-            <div className="mt-6 space-y-2">
-                <button 
-                    disabled={loading || !isVehicleAvailable}
-                    onClick={handleConfirmBooking}
-                    className={`group w-full py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2 relative overflow-hidden
-                        ${loading || !isVehicleAvailable 
-                            ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none" 
-                            : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:shadow-indigo-500/40"
-                        }
-                    `}
-                >
-                    <span className="relative z-10">{loading ? "Processing..." : "Pay Now"}</span>
-                    {!loading && <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />}
-                    {!loading && isVehicleAvailable && <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />}
-                </button>
-                <p className="text-center text-[9px] text-slate-400 font-medium flex items-center justify-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> SSL Secure Payment
-                </p>
-            </div>
+            {/* ... inside the render return ... */}
+
+<div className="mt-6 space-y-2">
+    <PaymentButton 
+        amount={totalPrice}
+        bookingData={{ contactNumber: phoneNumber }}
+        onSuccess={handleBookingSuccess} 
+        disabled={loading || !isVehicleAvailable || !vehicleNumber || !phoneNumber || totalPrice <= 0}
+    />
+
+    {/* CHANGE THIS FROM <p> TO <div> */}
+    <div className="text-center text-[9px] text-slate-400 font-medium flex items-center justify-center gap-1">
+        <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div> SSL Secure Payment
+    </div>
+</div>
         </div>
       </div>
     </div>

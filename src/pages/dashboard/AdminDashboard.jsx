@@ -53,16 +53,16 @@ function AdminDashboard() {
   }, [lots, allBookings]);
 
   // Handle logout
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:8080/logout", {}, { withCredentials: true });
-    } catch (error) {
-      console.error("Logout failed", error);
-    } finally {
-      localStorage.clear();
-      navigate("/");
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/logout", {}, { withCredentials: true });
+  //   } catch (error) {
+  //     console.error("Logout failed", error);
+  //   } finally {
+  //     localStorage.clear();
+  //     navigate("/");
+  //   }
+  // };
 
   const handleToggleStatus = async (lotId, currentStatus) => {
     const statusToCheck = currentStatus || "ACTIVE";
@@ -75,7 +75,7 @@ function AdminDashboard() {
       
       const token = localStorage.getItem("token"); // 🔑 Get Token
       
-      await axios.patch(`http://localhost:8080/api/parking-lots/${lotId}/status`, 
+      await axios.patch(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}/status`, 
         { status: newStatus }, 
         { 
           headers: { Authorization: `Bearer ${token}` }, // 🔑 Attach Token
@@ -120,13 +120,13 @@ const fetchData = async () => {
 
       // ✅ 3. Apply the config to all requests in Promise.all
       const [bookingsRes, lotsRes, earningsRes] = await Promise.all([
-        axios.get(`http://localhost:8080/api/bookings/admin`, config),
-        axios.get(`http://localhost:8080/api/parking-lots`, { 
+        axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/admin`, config),
+        axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots`, { 
           params: { ownerId: adminId }, 
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true 
         }),
-        axios.get(`http://localhost:8080/api/bookings/earnings`, config)
+        axios.get(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/earnings`, config)
       ]);
 
       setAllBookings(bookingsRes.data);
@@ -172,7 +172,7 @@ const fetchData = async () => {
       try {
         const token = localStorage.getItem("token"); // 🔑 Get Token
 
-        await axios.post(`http://localhost:8080/api/bookings/${id}/release`, 
+        await axios.post(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/${id}/release`, 
           {}, 
           { 
             headers: { Authorization: `Bearer ${token}` }, // 🔑 Attach Token
@@ -198,7 +198,7 @@ const fetchData = async () => {
         const token = localStorage.getItem("token");
 
         // 2. Send request WITH the token in headers
-        await axios.delete(`http://localhost:8080/api/parking-lots/${lotId}`, { 
+        await axios.delete(`http://localhost:https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, { 
           headers: { Authorization: `Bearer ${token}` }, // 👈 This was missing
           withCredentials: true 
         });

@@ -69,7 +69,7 @@
 //     }
 //     try {
 //       // Send the user's ACTUAL location to the backend
-//       await axios.post(`http://localhost:8080/api/bookings/create`, {
+//       await axios.post(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/create`, {
 //         lotId: lotId,
 //         userLat: userLocation[0],
 //         userLng: userLocation[1]
@@ -258,7 +258,7 @@ function SelfParking() {
         return;
     }
     try {
-      await axios.post(`http://localhost:8080/api/bookings/create`, {
+      await axios.post(`http://localhost:https://smartparking-backend-1.onrender.com/api/bookings/create`, {
         lotId: lotId,
         userLat: userLocation[0],
         userLng: userLocation[1]

@@ -43,7 +43,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       await axios.post("http://localhost:8080/api/auth/send-otp", { email });
+//       await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email });
 //       setStep(2);
 //     } catch {
 //       alert("Failed to send OTP.");
@@ -56,7 +56,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await axios.post("http://localhost:8080/api/auth/verify-otp", {
+//       const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/verify-otp", {
 //         email,
 //         otp,
 //       });
@@ -73,7 +73,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       const res = await axios.post("http://localhost:8080/api/auth/login", {
+//       const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/login", {
 //         email,
 //         password,
 //       });
@@ -93,7 +93,7 @@
 //     }
 //     setLoading(true);
 //     try {
-//       await axios.post("http://localhost:8080/api/auth/send-magic-link", {
+//       await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", {
 //         email,
 //       });
 //       alert("✨ Magic Link Sent! Check your email to log in instantly.");
@@ -108,7 +108,7 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     try {
-//       await axios.post("http://localhost:8080/api/auth/reset-password", {
+//       await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/reset-password", {
 //         email,
 //         otp,
 //         newPassword,
@@ -215,7 +215,7 @@
 //               {/* Google Login */}
 //               <motion.div variants={itemVariants} className="mb-6">
 //                 <motion.a
-//                   href="http://localhost:8080/oauth2/authorization/google"
+//                   href="http://localhost:https://smartparking-backend-1.onrender.com/oauth2/authorization/google"
 //                   whileHover={{ scale: 1.02, y: -2 }}
 //                   whileTap={{ scale: 0.98 }}
 //                   className="w-full flex items-center justify-center gap-3 bg-white text-slate-700 font-bold py-3.5 rounded-xl border border-slate-200 shadow-sm hover:bg-slate-50 transition-all"
@@ -877,7 +877,7 @@ function Login() {
 
   const handleSendOtp = async (e) => {
     e.preventDefault(); setLoading(true);
-    try { await axios.post("http://localhost:8080/api/auth/send-otp", { email }); setStep(2); }
+    try { await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email }); setStep(2); }
     catch { alert("Failed to send OTP."); }
     finally { setLoading(false); }
   };
@@ -885,7 +885,7 @@ function Login() {
   const handleOtpLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/verify-otp", { email, otp });
+      const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/verify-otp", { email, otp });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid OTP!"); }
@@ -895,7 +895,7 @@ function Login() {
   const handlePasswordLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
+      const res = await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/login", { email, password });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("Invalid Credentials"); }
@@ -905,7 +905,7 @@ function Login() {
   const handleSendMagicLink = async () => {
     if (!email) { alert("Please enter your email address first."); return; }
     setLoading(true);
-    try { await axios.post("http://localhost:8080/api/auth/send-magic-link", { email }); alert("✨ Magic Link Sent! Check your email."); }
+    try { await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", { email }); alert("✨ Magic Link Sent! Check your email."); }
     catch { alert("Failed to send magic link. Please try again."); }
     finally { setLoading(false); }
   };
@@ -913,7 +913,7 @@ function Login() {
   const handleResetPassword = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      await axios.post("http://localhost:8080/api/auth/reset-password", { email, otp, newPassword });
+      await axios.post("http://localhost:https://smartparking-backend-1.onrender.com/api/auth/reset-password", { email, otp, newPassword });
       alert("Password reset! Please login.");
       setView("login"); setLoginMethod("password"); setStep(1);
     } catch { alert("Failed to reset."); }
