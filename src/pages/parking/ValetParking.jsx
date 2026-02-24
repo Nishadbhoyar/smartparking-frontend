@@ -14,9 +14,9 @@ function ValetDashboard() {
   const fetchQueue = () => {
     const token = localStorage.getItem("token"); // 🔑
     
-    axios.get("https://smartparking-backend-1.onrender.com/api/bookings/valet/queue", {
-        headers: { Authorization: `Bearer ${token}` } // 🔑
-      })
+    axios.get("http://localhost:8080/api/bookings/valet/queue", {
+  headers: { Authorization: `Bearer ${token}` }
+})
       .then(res => setQueue(res.data))
       .catch(err => console.error(err));
   };
@@ -24,9 +24,9 @@ function ValetDashboard() {
   const handleAccept = (bookingId) => {
     const token = localStorage.getItem("token"); // 🔑
     
-    axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${bookingId}/pickup`, {}, {
-        headers: { Authorization: `Bearer ${token}` } // 🔑
-      })
+    axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`, {}, {
+  headers: { Authorization: `Bearer ${token}` }
+})
       .then(res => {
         setMyJob(res.data);
         fetchQueue();
@@ -36,9 +36,9 @@ function ValetDashboard() {
     // Note: Assuming rejection logic also hits an endpoint, added token here too
     const token = localStorage.getItem("token");
     // You likely want a different endpoint for reject, but keeping your URL for now:
-    axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${bookingId}/pickup`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+   axios.post(`http://localhost:8080/api/bookings/${bookingId}/pickup`, {}, {
+  headers: { Authorization: `Bearer ${token}` }
+})
       .then(res => {
         setMyJob(res.data);
         fetchQueue();

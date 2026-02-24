@@ -140,14 +140,14 @@ function AddParkingLot() {
     try {
       // ✅ ADDED AUTHORIZATION HEADER
       await axios.post(
-        `https://smartparking-backend-1.onrender.com/api/parking-lots?ownerId=${ownerId}`, 
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}` 
-          }
-        }
-      );
+  `http://localhost:8080/api/parking-lots?ownerId=${ownerId}`,
+  payload,
+  {
+    headers: {
+      Authorization: `Bearer ${token}` 
+    }
+  }
+);
       
       alert("Parking Lot Added Successfully!");
       navigate("/admin-dashboard");

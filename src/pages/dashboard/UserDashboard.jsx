@@ -118,9 +118,9 @@ function UserDashboard() {
         // 4. Use Promise.all to fetch both endpoints in parallel
         // Notice we pass 'config' as the second argument to BOTH calls
         const [userRes, lotsRes] = await Promise.all([
-          axios.get("https://smartparking-backend-1.onrender.com/api/users/me", config),
-          axios.get("https://smartparking-backend-1.onrender.com/api/parking-lots", config)
-        ]);
+  axios.get("http://localhost:8080/api/users/me", config),
+  axios.get("http://localhost:8080/api/parking-lots", config)
+]);
 
         // 5. Update State with the results
         if (userRes.data) {
@@ -171,14 +171,10 @@ function UserDashboard() {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await axios.put("https://smartparking-backend-1.onrender.com/api/users/me", 
-        { 
-          name: profileData.name, 
-          phoneNumber: profileData.phoneNumber,
-          password: profileData.password
-        },
-        { withCredentials: true }
-      );
+      await axios.put("http://localhost:8080/api/users/me", 
+  { name: profileData.name, phoneNumber: profileData.phoneNumber, password: profileData.password },
+  { withCredentials: true }
+);
       setShowProfileModal(false);
       alert("Profile completed! You can now login with Google OR Password.");
     } catch (err) {
@@ -652,18 +648,18 @@ function ValetRequestPanel({ userId, currentPosition, setWatchId, onDownload }) 
       const token = localStorage.getItem("token");
       
       // ✅ This includes the fix for the 400 Error (Nested User Object)
-      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", {
-        user: { id: userId }, 
-        vehicleNumber: vehicleDetails.vehicleNumber,
-        vehicleModel: vehicleDetails.vehicleModel,
-        contactNumber: vehicleDetails.contactNumber,
-        pickupLat: currentPosition.lat,
-        pickupLng: currentPosition.lng,
-        status: "VALET_REQUESTED",
-        serviceType: "VALET"
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.post("http://localhost:8080/api/bookings", {
+  user: { id: userId }, 
+  vehicleNumber: vehicleDetails.vehicleNumber,
+  vehicleModel: vehicleDetails.vehicleModel,
+  contactNumber: vehicleDetails.contactNumber,
+  pickupLat: currentPosition.lat,
+  pickupLng: currentPosition.lng,
+  status: "VALET_REQUESTED",
+  serviceType: "VALET"
+}, {
+  headers: { Authorization: `Bearer ${token}` }
+});
 
       setStatus("WAITING");
     } catch (err) {
