@@ -140,7 +140,7 @@
 //     try {
 //       // ✅ ADDED AUTHORIZATION HEADER
 //       await axios.post(
-//   `https://smartparking-backend-1.onrender.com/api/parking-lots?ownerId=${ownerId}`,
+//   `http://localhost:8080/api/parking-lots?ownerId=${ownerId}`,
 //   payload,
 //   {
 //     headers: {
@@ -443,7 +443,7 @@ function AddParkingLot() {
     if (!latitude || !longitude) { alert("Please select a location on the map."); return; }
     const token = localStorage.getItem("token");
     try {
-      await axios.post(`https://smartparking-backend-1.onrender.com/api/parking-lots?ownerId=${ownerId}`,
+      await axios.post(`http://localhost:8080/api/parking-lots?ownerId=${ownerId}`,
         { name, address, description, type, location: { latitude, longitude }, parkingSlots: slots, amenities: features },
         { headers: { Authorization: `Bearer ${token}` } }
       );

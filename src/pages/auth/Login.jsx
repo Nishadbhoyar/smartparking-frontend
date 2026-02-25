@@ -319,7 +319,7 @@
 //     if (token) {
 //       setVerifying(true); // Switch UI to Verification Mode
       
-//       axios.post("https://smartparking-backend-1.onrender.com/api/auth/verify-magic-link", { token })
+//       axios.post("http://localhost:8080/api/auth/verify-magic-link", { token })
 //         .then((response) => {
 //           const { token: jwt, redirectUrl, user } = response.data;
 
@@ -371,7 +371,7 @@
 
 //     setLoading(true);
 //     try { 
-//       await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email }); 
+//       await axios.post("http://localhost:8080/api/auth/send-otp", { email }); 
 //       setStep(2); 
 //     } catch (err) {
 //       // ✅ Redirect to Signup if the user is not found
@@ -389,7 +389,7 @@
 //   const handleOtpLogin = async (e) => {
 //     e.preventDefault(); setLoading(true);
 //     try {
-//       const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/verify-otp", { email, otp });
+//       const res = await axios.post("http://localhost:8080/api/auth/verify-otp", { email, otp });
 //       if (res.data.token) localStorage.setItem("token", res.data.token);
 //       handleLoginSuccess(res.data.user);
 //     } catch { alert("❌ Invalid OTP Code!"); }
@@ -406,7 +406,7 @@
 //     setLoading(true);
 //     try {
 //       // 2. Send Request
-//       const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/login", { email, password });
+//       const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
       
 //       // 3. Success
 //       if (res.data.token) {
@@ -440,7 +440,7 @@
 
 //     setLoading(true);
 //     try { 
-//       await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", { email });
+//       await axios.post("http://localhost:8080/api/auth/send-magic-link", { email });
 //       alert("✨ Magic Link Sent! Check your email to log in instantly."); 
 //     } catch (err) { 
 //       if (err.response?.status === 404 || err.response?.data?.message?.toLowerCase().includes("not found")) {
@@ -457,7 +457,7 @@
 //   const handleResetPassword = async (e) => {
 //     e.preventDefault(); setLoading(true);
 //     try {
-//       await axios.post("https://smartparking-backend-1.onrender.com/api/auth/reset-password", { email, otp, newPassword });
+//       await axios.post("http://localhost:8080/api/auth/reset-password", { email, otp, newPassword });
 //       alert("✅ Password reset successful! Please login with your new password.");
 //       setView("login"); setLoginMethod("password"); setStep(1);
 //       setPassword(""); setOtp(""); // Clear sensitive inputs
@@ -989,7 +989,7 @@ function Login() {
     if (token) {
       setVerifying(true); // Show loading UI
       
-      axios.post("https://smartparking-backend-1.onrender.com/api/auth/verify-magic-link", { token })
+      axios.post("http://localhost:8080/api/auth/verify-magic-link", { token })
         .then((response) => {
           const { token: jwt, user, redirectUrl } = response.data; // 👈 Get redirectUrl from backend
 
@@ -1042,7 +1042,7 @@ function Login() {
 
     setLoading(true);
     try { 
-      await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-otp", { email }); 
+      await axios.post("http://localhost:8080/api/auth/send-otp", { email }); 
       setStep(2); 
     } catch (err) {
       if (err.response?.status === 404 || err.response?.data?.message?.toLowerCase().includes("not found")) {
@@ -1059,7 +1059,7 @@ function Login() {
   const handleOtpLogin = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/verify-otp", { email, otp });
+      const res = await axios.post("http://localhost:8080/api/auth/verify-otp", { email, otp });
       if (res.data.token) localStorage.setItem("token", res.data.token);
       handleLoginSuccess(res.data.user);
     } catch { alert("❌ Invalid OTP Code!"); }
@@ -1073,7 +1073,7 @@ function Login() {
 
     setLoading(true);
     try {
-      const res = await axios.post("https://smartparking-backend-1.onrender.com/api/auth/login", { email, password });
+      const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
         handleLoginSuccess(res.data.user);
@@ -1099,7 +1099,7 @@ function Login() {
 
     setLoading(true);
     try { 
-      await axios.post("https://smartparking-backend-1.onrender.com/api/auth/send-magic-link", { email });
+      await axios.post("http://localhost:8080/api/auth/send-magic-link", { email });
       alert("✨ Magic Link Sent! Check your email to log in instantly."); 
     } catch (err) { 
       if (err.response?.status === 404 || err.response?.data?.message?.toLowerCase().includes("not found")) {
@@ -1116,7 +1116,7 @@ function Login() {
   const handleResetPassword = async (e) => {
     e.preventDefault(); setLoading(true);
     try {
-      await axios.post("https://smartparking-backend-1.onrender.com/api/auth/reset-password", { email, otp, newPassword });
+      await axios.post("http://localhost:8080/api/auth/reset-password", { email, otp, newPassword });
       alert("✅ Password reset successful! Please login with your new password.");
       setView("login"); setLoginMethod("password"); setStep(1);
       setPassword(""); setOtp("");

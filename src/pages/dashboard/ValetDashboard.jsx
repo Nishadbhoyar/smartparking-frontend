@@ -117,7 +117,7 @@ function ValetDashboard() {
   const handleLogout = async () => {
     try {
       const config = getAuthConfig();
-      if (config)await axios.post("https://smartparking-backend-1.onrender.com/api/auth/logout", {}, config);
+      if (config)await axios.post("http://localhost:8080/api/auth/logout", {}, config);
     } catch (error) { console.error("Logout failed", error); }
     finally { localStorage.clear(); navigate("/"); }
   };
@@ -126,7 +126,7 @@ function ValetDashboard() {
     const config = getAuthConfig();
     if (!config) { navigate("/login"); return; }
     try {
-      const res = await axios.get("https://smartparking-backend-1.onrender.com/api/bookings/valet/queue", config);
+      const res = await axios.get("http://localhost:8080/api/bookings/valet/queue", config);
       setQueue(res.data);
     } catch (err) {
       console.error("Fetch Queue Error:", err);
@@ -144,7 +144,7 @@ function ValetDashboard() {
     const config = getAuthConfig();
     if (!config) return;
     try {
-      await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${booking.id}/pickup`, {}, config);
+      await axios.post(`http://localhost:8080/api/bookings/${booking.id}/pickup`, {}, config);
       setActiveTask(booking);
       fetchQueue();
     } catch { alert("Error accepting task."); }
@@ -183,7 +183,7 @@ function ValetDashboard() {
       formData.append("parkedLat", completionData.lat);
       formData.append("parkedLng", completionData.lng);
       completionData.images.forEach(img => formData.append("files", img));
-      await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${activeTask.id}/complete`, formData, {
+      await axios.post(`http://localhost:8080/api/bookings/${activeTask.id}/complete`, formData, {
   ...config, headers: { ...config.headers, "Content-Type": "multipart/form-data" }
 });
       alert("✅ Vehicle Parked Successfully!");

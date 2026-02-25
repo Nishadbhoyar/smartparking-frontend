@@ -13,7 +13,7 @@
 //     setLoading(true);
 
 //     // Fetch lot details
-//     axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`)
+//     axios.get(`http://localhost:8080/api/parking-lots/${lotId}`)
 //       .then((response) => {
 //         setLot(response.data);
 //       })
@@ -22,7 +22,7 @@
 //       });
 
 //     // Fetch bookings for this specific lot
-//     axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/lot/${lotId}`)
+//     axios.get(`http://localhost:8080/api/bookings/lot/${lotId}`)
 //       .then((response) => {
 //         setBookings(response.data);
 //         setLoading(false);
@@ -272,8 +272,8 @@ function LotBookings() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`).then(r => setLot(r.data)).catch(console.error);
-    axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/lot/${lotId}`)
+    axios.get(`http://localhost:8080/api/parking-lots/${lotId}`).then(r => setLot(r.data)).catch(console.error);
+    axios.get(`http://localhost:8080/api/bookings/lot/${lotId}`)
       .then(r => { setBookings(r.data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [lotId]);

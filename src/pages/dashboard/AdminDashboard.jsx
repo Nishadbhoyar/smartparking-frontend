@@ -76,7 +76,7 @@
       
 //       const token = localStorage.getItem("token"); // 🔑 Get Token
       
-//       await axios.patch(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}/status`, 
+//       await axios.patch(`http://localhost:8080/api/parking-lots/${lotId}/status`, 
 //   { status: newStatus }, 
 //   { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
 // );
@@ -116,14 +116,14 @@
 
 //       // 🔥 FIX: Apply allSettled to prevent the disappearing lots bug
 //       const results = await Promise.allSettled([
-//   axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/admin`, config),
-//   axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots`, { 
+//   axios.get(`http://localhost:8080/api/bookings/admin`, config),
+//   axios.get(`http://localhost:8080/api/parking-lots`, { 
 //     params: { ownerId: adminId }, 
 //     headers: { Authorization: `Bearer ${token}` },
 //     withCredentials: true 
 //   }),
-//   axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/earnings`, config),
-//   axios.get(`https://smartparking-backend-1.onrender.com/api/admin/stats/dashboard`, config)
+//   axios.get(`http://localhost:8080/api/bookings/earnings`, config),
+//   axios.get(`http://localhost:8080/api/admin/stats/dashboard`, config)
 // ]);
 
 //       if (results[0].status === "fulfilled") setAllBookings(results[0].value.data);
@@ -174,7 +174,7 @@
 //       try {
 //         const token = localStorage.getItem("token"); // 🔑 Get Token
 
-//         await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${id}/release`, 
+//         await axios.post(`http://localhost:8080/api/bookings/${id}/release`, 
 //   {}, 
 //   { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
 // );
@@ -197,7 +197,7 @@
 //         const token = localStorage.getItem("token");
 
 //         // 2. Send request WITH the token in headers
-//         await axios.delete(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, { 
+//         await axios.delete(`http://localhost:8080/api/parking-lots/${lotId}`, { 
 //   headers: { Authorization: `Bearer ${token}` }, 
 //   withCredentials: true 
 // });
@@ -1076,7 +1076,7 @@ function AdminDashboard() {
     try {
       setLots(prev => prev.map(lot => lot.id === lotId ? { ...lot, status: newStatus } : lot));
       const token = localStorage.getItem("token");
-      await axios.patch(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}/status`,
+      await axios.patch(`http://localhost:8080/api/parking-lots/${lotId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
@@ -1100,14 +1100,14 @@ function AdminDashboard() {
         withCredentials: true
       };
       const results = await Promise.allSettled([
-        axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/admin`, config),
-        axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots`, {
+        axios.get(`http://localhost:8080/api/bookings/admin`, config),
+        axios.get(`http://localhost:8080/api/parking-lots`, {
           params: { ownerId: adminId },
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true
         }),
-        axios.get(`https://smartparking-backend-1.onrender.com/api/bookings/earnings`, config),
-        axios.get(`https://smartparking-backend-1.onrender.com/api/admin/stats/dashboard`, config)
+        axios.get(`http://localhost:8080/api/bookings/earnings`, config),
+        axios.get(`http://localhost:8080/api/admin/stats/dashboard`, config)
       ]);
 
       if (results[0].status === "fulfilled") setAllBookings(results[0].value.data);
@@ -1142,7 +1142,7 @@ function AdminDashboard() {
     if (window.confirm("Mark this vehicle as 'Left Parking'?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/${id}/release`, {},
+        await axios.post(`http://localhost:8080/api/bookings/${id}/release`, {},
           { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
         );
         setAllBookings(prev => prev.map(b => b.id === id ? { ...b, status: "LEFT_PARKING" } : b));
@@ -1154,7 +1154,7 @@ function AdminDashboard() {
     if (window.confirm("Delete this parking lot?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, {
+        await axios.delete(`http://localhost:8080/api/parking-lots/${lotId}`, {
           headers: { Authorization: `Bearer ${token}` }, withCredentials: true
         });
         setLots(prev => prev.filter(lot => lot.id !== lotId));

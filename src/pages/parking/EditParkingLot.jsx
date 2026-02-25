@@ -62,7 +62,7 @@
 //         const token = localStorage.getItem("token");
 
 //         // ✅ 2. Include Authorization header in the GET request
-//         const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, {
+//         const res = await axios.get(`http://localhost:8080/api/parking-lots/${lotId}`, {
 //   headers: {
 //     Authorization: `Bearer ${token}`
 //   }
@@ -147,7 +147,7 @@
 
 //     try {
 //       // ✅ 4. Include Authorization header in the PUT request
-//       await axios.put(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, payload, {
+//       await axios.put(`http://localhost:8080/api/parking-lots/${lotId}`, payload, {
 //   headers: {
 //     Authorization: `Bearer ${token}`
 //   }
@@ -319,7 +319,7 @@
 //     const fetchLot = async () => {
 //       try {
 //         const token = localStorage.getItem("token");
-//         const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`, { headers: { Authorization: `Bearer ${token}` } });
+//         const res = await axios.get(`http://localhost:8080/api/parking-lots/${lotId}`, { headers: { Authorization: `Bearer ${token}` } });
 //         const d = res.data;
 //         setName(d.name || ""); setAddress(d.address || ""); setDescription(d.description || "");
 //         if (d.location) { setLatitude(d.location.latitude); setLongitude(d.location.longitude); }
@@ -346,7 +346,7 @@
 //   const handleUpdate = async () => {
 //     const token = localStorage.getItem("token");
 //     try {
-//       await axios.put(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`,
+//       await axios.put(`http://localhost:8080/api/parking-lots/${lotId}`,
 //         { name, address, description, location: { latitude, longitude }, parkingSlots: slots, amenities: features },
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
@@ -505,7 +505,7 @@ function BookingPage() {
     const stored = localStorage.getItem("user");
     if (!stored) { alert("Please login first!"); navigate("/login"); return; }
     setUser(JSON.parse(stored));
-    axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lotId}`)
+    axios.get(`http://localhost:8080/api/parking-lots/${lotId}`)
       .then(r => { setLot(r.data); setLoading(false); })
       .catch(() => { alert("Failed to load lot details"); setLoading(false); });
   }, [navigate, lotId]);
@@ -519,7 +519,7 @@ function BookingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", {
+      const res = await axios.post("http://localhost:8080/api/bookings", {
         user: { id: user.id }, lot: { id: lotId },
         vehicleType: formData.vehicleType, serviceType: "SELF", status: "CONFIRMED",
         startTime: formData.startTime, endTime: formData.endTime, totalAmount: getPrice()

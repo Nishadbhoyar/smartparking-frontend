@@ -82,7 +82,7 @@
 //         return;
 //     }
 //     try {
-//       await axios.post(`https://smartparking-backend-1.onrender.com/api/bookings/create`, {
+//       await axios.post(`http://localhost:8080/api/bookings/create`, {
 //   lotId: lotId,
 //   userLat: userLocation[0],
 //   userLng: userLocation[1]
@@ -276,7 +276,7 @@ function SelfParking() {
   const startParking = async () => {
     if (!userLocation) { alert("Waiting for GPS..."); return; }
     try {
-      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings/create", { lotId, userLat: userLocation[0], userLng: userLocation[1] });
+      await axios.post("http://localhost:8080/api/bookings/create", { lotId, userLat: userLocation[0], userLng: userLocation[1] });
       alert("Parking Timer Started!");
       navigate("/dashboard");
     } catch { alert("Failed to start parking session."); }
