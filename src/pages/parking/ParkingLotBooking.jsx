@@ -34,7 +34,7 @@
 //       try {
 //         const token = localStorage.getItem("token");
 //         const config = { headers: { Authorization: `Bearer ${token}` } };
-//         const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`, config);
+//         const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lot.id}`, config);
 //         setFullLotData(res.data);
 //       } catch (err) {
 //         if (err.response?.status === 401) navigate("/login");
@@ -93,7 +93,7 @@
 //     };
 
 //     try {
-//       await axios.post("http://localhost:8080/api/bookings", bookingData, config);
+//       await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", bookingData, config);
 //       alert("Booking Successful! 🎟️");
 //       navigate("/user-dashboard");
 //     } catch (err) {
@@ -351,7 +351,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
     const fetch = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:8080/api/parking-lots/${lot.id}`, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.get(`https://smartparking-backend-1.onrender.com/api/parking-lots/${lot.id}`, { headers: { Authorization: `Bearer ${token}` } });
         setFullLotData(res.data);
       } catch (err) { if (err.response?.status === 401) navigate("/login"); }
       finally { setFetchingData(false); }
@@ -383,7 +383,7 @@ function ParkingLotBooking({ lot, user, onClose }) {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      await axios.post("http://localhost:8080/api/bookings", {
+      await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", {
         user: { id: user.id }, lot: { id: lot.id },
         vehicleType: selectedVehicle, vehicleNumber: vehicleNumber.toUpperCase(),
         contactNumber: phoneNumber, serviceType: "SELF", status: "CONFIRMED",

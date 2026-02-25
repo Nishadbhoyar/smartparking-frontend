@@ -118,8 +118,8 @@
 //         // 4. Use Promise.all to fetch both endpoints in parallel
 //         // Notice we pass 'config' as the second argument to BOTH calls
 //         const [userRes, lotsRes] = await Promise.all([
-//   axios.get("http://localhost:8080/api/users/me", config),
-//   axios.get("http://localhost:8080/api/parking-lots", config)
+//   axios.get("https://smartparking-backend-1.onrender.com/api/users/me", config),
+//   axios.get("https://smartparking-backend-1.onrender.com/api/parking-lots", config)
 // ]);
 
 //         // 5. Update State with the results
@@ -171,7 +171,7 @@
 //   const handleUpdateProfile = async (e) => {
 //     e.preventDefault();
 //     try {
-//       await axios.put("http://localhost:8080/api/users/me", 
+//       await axios.put("https://smartparking-backend-1.onrender.com/api/users/me", 
 //   { name: profileData.name, phoneNumber: profileData.phoneNumber, password: profileData.password },
 //   { withCredentials: true }
 // );
@@ -648,7 +648,7 @@
 //       const token = localStorage.getItem("token");
       
 //       // ✅ This includes the fix for the 400 Error (Nested User Object)
-//       await axios.post("http://localhost:8080/api/bookings", {
+//       await axios.post("https://smartparking-backend-1.onrender.com/api/bookings", {
 //   user: { id: userId }, 
 //   vehicleNumber: vehicleDetails.vehicleNumber,
 //   vehicleModel: vehicleDetails.vehicleModel,
@@ -900,8 +900,8 @@ function UserDashboard() {
           withCredentials: true,
         };
         const [userRes, lotsRes] = await Promise.all([
-          axios.get("http://localhost:8080/api/users/me", config),
-          axios.get("http://localhost:8080/api/parking-lots", config),
+          axios.get("https://smartparking-backend-1.onrender.com/api/users/me", config),
+          axios.get("https://smartparking-backend-1.onrender.com/api/parking-lots", config),
         ]);
         if (userRes.data) {
           const userData = userRes.data;
@@ -947,7 +947,7 @@ function UserDashboard() {
     e.preventDefault();
     try {
       await axios.put(
-        "http://localhost:8080/api/users/me",
+        "https://smartparking-backend-1.onrender.com/api/users/me",
         {
           name: profileData.name,
           phoneNumber: profileData.phoneNumber,
@@ -1334,7 +1334,7 @@ function ValetRequestPanel({ userId, currentPosition, onDownload }) {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:8080/api/bookings",
+        "https://smartparking-backend-1.onrender.com/api/bookings",
         {
           user: { id: userId },
           vehicleNumber: vehicleDetails.vehicleNumber,
