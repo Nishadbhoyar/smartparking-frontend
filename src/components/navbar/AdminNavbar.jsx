@@ -1,148 +1,7 @@
-// // Updated AdminNavbar.jsx - Simplified for consistency
-// import { useState, useEffect } from "react";
-// import { NavLink, useNavigate, useLocation } from "react-router-dom";
-// import { Building2, LogOut, Menu, X, Home, Plus } from "lucide-react";
-
-// function AdminNavbar() {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [scrolled, setScrolled] = useState(false);
-
-//   useEffect(() => {
-//     setIsOpen(false);
-//   }, [location.pathname]);
-
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setScrolled(window.scrollY > 20);
-//     };
-//     window.addEventListener("scroll", handleScroll);
-//     return () => window.removeEventListener("scroll", handleScroll);
-//   }, []);
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     navigate("/");
-//   };
-
-//   return (
-//     <nav className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-//       scrolled ? "bg-white/95 backdrop-blur-xl shadow-lg py-3" : "bg-transparent py-6"
-//     }`}>
-//       <div className="max-w-7xl mx-auto px-6">
-//         <div className="flex items-center justify-between">
-//           {/* LOGO */}
-//           <div 
-//             onClick={() => navigate("/admin-dashboard")}
-//             className="flex items-center gap-3 group cursor-pointer"
-//           >
-//             <div className="relative">
-//               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg blur-md group-hover:blur-lg transition-all opacity-70" />
-//               <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-//                 <Building2 className="w-6 h-6 text-white" />
-//               </div>
-//             </div>
-//             <span className="text-xl font-bold text-slate-800">Admin<span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text">Panel</span></span>
-//           </div>
-
-//           {/* DESKTOP NAV */}
-//           <div className="hidden md:flex items-center gap-4">
-//             <NavItem to="/admin-dashboard">
-//               <Home className="w-4 h-4 mr-2" />
-//               Dashboard
-//             </NavItem>
-//             <NavItem to="/add-parking-lot">
-//               <Plus className="w-4 h-4 mr-2" />
-//               Add Lot
-//             </NavItem>
-//             <button
-//               onClick={handleLogout}
-//               className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-rose-500/30 transition-all"
-//             >
-//               <LogOut className="w-4 h-4" />
-//               Logout
-//             </button>
-//           </div>
-
-//           {/* MOBILE TOGGLE */}
-//           <button
-//             onClick={() => setIsOpen(!isOpen)}
-//             className="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
-//           >
-//             {isOpen ? (
-//               <X className="w-6 h-6 text-slate-700" />
-//             ) : (
-//               <Menu className="w-6 h-6 text-slate-700" />
-//             )}
-//           </button>
-//         </div>
-
-//         {/* MOBILE MENU */}
-//         {isOpen && (
-//           <div className="md:hidden mt-4 bg-white rounded-xl border border-slate-200 shadow-xl p-4 animate-slide-down">
-//             <MobileNavItem to="/admin-dashboard" icon={<Home className="w-5 h-5" />}>
-//               Dashboard
-//             </MobileNavItem>
-//             <MobileNavItem to="/add-parking-lot" icon={<Plus className="w-5 h-5" />}>
-//               Add Lot
-//             </MobileNavItem>
-//             <button
-//               onClick={handleLogout}
-//               className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-rose-500/30 transition-all"
-//             >
-//               <LogOut className="w-5 h-5" />
-//               Logout
-//             </button>
-//           </div>
-//         )}
-//       </div>
-//     </nav>
-//   );
-// }
-
-// function NavItem({ to, children }) {
-//   return (
-//     <NavLink
-//       to={to}
-//       className={({ isActive }) =>
-//         `flex items-center px-4 py-2.5 rounded-xl font-medium transition-all ${
-//           isActive
-//             ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border border-blue-100"
-//             : "text-slate-600 hover:text-slate-800 hover:bg-slate-50"
-//         }`
-//       }
-//     >
-//       {children}
-//     </NavLink>
-//   );
-// }
-
-// function MobileNavItem({ to, icon, children }) {
-//   return (
-//     <NavLink
-//       to={to}
-//       className={({ isActive }) =>
-//         `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all mb-2 ${
-//           isActive
-//             ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 border border-blue-100"
-//             : "text-slate-600 hover:text-slate-800 hover:bg-slate-50"
-//         }`
-//       }
-//     >
-//       {icon}
-//       {children}
-//     </NavLink>
-//   );
-// }
-
-// export default AdminNavbar;
-
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { Building2, LogOut, Menu, X, Home, Plus } from "lucide-react";
+import { Building2, LogOut, Menu, X, Home, Plus, User, Lock, Mail, Eye, EyeOff, Check, AlertCircle } from "lucide-react";
 
-/* ── tiny hook: is the viewport mobile-sized? ── */
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth <= breakpoint : false
@@ -159,11 +18,11 @@ function AdminNavbar() {
   const navigate   = useNavigate();
   const location   = useLocation();
   const isMobile   = useIsMobile();
-  const [isOpen,   setIsOpen]   = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isOpen,       setIsOpen]       = useState(false);
+  const [scrolled,     setScrolled]     = useState(false);
+  const [showProfile,  setShowProfile]  = useState(false);
 
   useEffect(() => { setIsOpen(false); }, [location.pathname]);
-
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
@@ -173,84 +32,282 @@ function AdminNavbar() {
   const handleLogout = () => { localStorage.clear(); navigate("/"); };
 
   return (
-    <nav style={{
-      ...S.nav,
-      background:     scrolled ? "rgba(10,10,10,0.95)" : "transparent",
-      boxShadow:      scrolled ? "0 1px 0 #1e1e1e"     : "none",
-      backdropFilter: scrolled ? "blur(16px)"           : "none",
-      padding:        scrolled ? "12px 0"               : "20px 0",
-    }}>
-      <div style={S.inner}>
-
-        {/* LOGO */}
-        <div onClick={() => navigate("/admin-dashboard")} style={S.logo}>
-          <div style={S.logoIconWrap}>
-            <div style={S.logoGlow} />
-            <div style={S.logoIcon}>
-              <Building2 size={20} color="#000" />
+    <>
+      <nav style={{
+        ...S.nav,
+        background:     scrolled ? "rgba(10,10,10,0.95)" : "transparent",
+        boxShadow:      scrolled ? "0 1px 0 #1e1e1e"     : "none",
+        backdropFilter: scrolled ? "blur(16px)"           : "none",
+        padding:        scrolled ? "12px 0"               : "20px 0",
+      }}>
+        <div style={S.inner}>
+          {/* LOGO */}
+          <div onClick={() => navigate("/admin-dashboard")} style={S.logo}>
+            <div style={S.logoIconWrap}>
+              <div style={S.logoGlow} />
+              <div style={S.logoIcon}><Building2 size={20} color="#000" /></div>
             </div>
+            <span style={S.logoText}>Admin<span style={S.logoAccent}>Panel</span></span>
+            <span style={S.adminBadge}>OWNER</span>
           </div>
-          <span style={S.logoText}>
-            Admin<span style={S.logoAccent}>Panel</span>
-          </span>
-          <span style={S.adminBadge}>OWNER</span>
+
+          {!isMobile && (
+            <div style={S.desktopNav}>
+              <NavItem to="/admin-dashboard"><Home size={15} /> Dashboard</NavItem>
+              <NavItem to="/add-parking-lot"><Plus size={15} /> Add Lot</NavItem>
+              <button
+                onClick={() => setShowProfile(true)}
+                style={S.profileBtn}
+                onMouseEnter={e => (e.currentTarget.style.background = "#C8FF0022")}
+                onMouseLeave={e => (e.currentTarget.style.background = "#C8FF0012")}
+              >
+                <User size={15} /> My Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                style={S.logoutBtn}
+                onMouseEnter={e => (e.currentTarget.style.background = "#f8717128")}
+                onMouseLeave={e => (e.currentTarget.style.background = "#f8717118")}
+              >
+                <LogOut size={15} /> Logout
+              </button>
+            </div>
+          )}
+
+          {isMobile && (
+            <button onClick={() => setIsOpen(!isOpen)} style={S.hamburger}>
+              {isOpen ? <X size={22} color="#fff" /> : <Menu size={22} color="#fff" />}
+            </button>
+          )}
         </div>
 
-        {/* DESKTOP NAV — conditionally rendered via JS, no CSS @media needed */}
-        {!isMobile && (
-          <div style={S.desktopNav}>
-            <NavItem to="/admin-dashboard"><Home size={15} /> Dashboard</NavItem>
-            <NavItem to="/add-parking-lot"><Plus size={15} /> Add Lot</NavItem>
-            <button
-              onClick={handleLogout}
-              style={S.logoutBtn}
-              onMouseEnter={e => (e.currentTarget.style.background = "#f8717128")}
-              onMouseLeave={e => (e.currentTarget.style.background = "#f8717118")}
-            >
-              <LogOut size={15} /> Logout
+        {isMobile && isOpen && (
+          <div style={S.mobileMenu}>
+            <MobileNavItem to="/admin-dashboard" icon={<Home size={18} />}>Dashboard</MobileNavItem>
+            <MobileNavItem to="/add-parking-lot" icon={<Plus size={18} />}>Add Lot</MobileNavItem>
+            <button onClick={() => { setShowProfile(true); setIsOpen(false); }} style={S.mobileProfileBtn}>
+              <User size={18} /> My Profile
+            </button>
+            <button onClick={handleLogout} style={S.mobileLogout}>
+              <LogOut size={18} /> Logout
             </button>
           </div>
         )}
+      </nav>
 
-        {/* HAMBURGER — conditionally rendered via JS */}
-        {isMobile && (
-          <button onClick={() => setIsOpen(!isOpen)} style={S.hamburger}>
-            {isOpen ? <X size={22} color="#fff" /> : <Menu size={22} color="#fff" />}
-          </button>
-        )}
-      </div>
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} role="admin" accentColor="#C8FF00" />}
+    </>
+  );
+}
 
-      {/* MOBILE DROPDOWN */}
-      {isMobile && isOpen && (
-        <div style={S.mobileMenu}>
-          <MobileNavItem to="/admin-dashboard" icon={<Home size={18} />}>
-            Dashboard
-          </MobileNavItem>
-          <MobileNavItem to="/add-parking-lot" icon={<Plus size={18} />}>
-            Add Lot
-          </MobileNavItem>
-          <button onClick={handleLogout} style={S.mobileLogout}>
-            <LogOut size={18} /> Logout
+/* ── PROFILE MODAL ── */
+function ProfileModal({ onClose, role, accentColor }) {
+  const stored = JSON.parse(localStorage.getItem("user") || "{}");
+  const [tab, setTab]           = useState("info"); // "info" | "password"
+  const [name,  setName]        = useState(stored.name  || "");
+  const [email, setEmail]       = useState(stored.email || "");
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw,     setNewPw]     = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showCur,   setShowCur]   = useState(false);
+  const [showNew,   setShowNew]   = useState(false);
+  const [showCon,   setShowCon]   = useState(false);
+  const [loading,   setLoading]   = useState(false);
+  const [status,    setStatus]    = useState(null); // { type: "success"|"error", msg }
+
+  const token = localStorage.getItem("token");
+
+  const saveInfo = async () => {
+    if (!name.trim() || !email.trim()) {
+      setStatus({ type: "error", msg: "Name and email cannot be empty." }); return;
+    }
+    setLoading(true); setStatus(null);
+    try {
+      const res = await fetch("/api/users/update-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name, email }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify({ ...stored, name, email }));
+        setStatus({ type: "success", msg: "Profile updated successfully!" });
+      } else {
+        setStatus({ type: "error", msg: data.message || "Update failed." });
+      }
+    } catch {
+      setStatus({ type: "error", msg: "Network error. Please try again." });
+    } finally { setLoading(false); }
+  };
+
+  const savePassword = async () => {
+    if (!currentPw || !newPw || !confirmPw) {
+      setStatus({ type: "error", msg: "All password fields are required." }); return;
+    }
+    if (newPw.length < 6) {
+      setStatus({ type: "error", msg: "New password must be at least 6 characters." }); return;
+    }
+    if (newPw !== confirmPw) {
+      setStatus({ type: "error", msg: "New passwords do not match." }); return;
+    }
+    setLoading(true); setStatus(null);
+    try {
+      const res = await fetch("/api/users/change-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCurrentPw(""); setNewPw(""); setConfirmPw("");
+        setStatus({ type: "success", msg: "Password changed successfully!" });
+      } else {
+        setStatus({ type: "error", msg: data.message || "Password change failed." });
+      }
+    } catch {
+      setStatus({ type: "error", msg: "Network error. Please try again." });
+    } finally { setLoading(false); }
+  };
+
+  const accent = accentColor;
+  const initial = (stored.name || stored.email || role || "U")[0].toUpperCase();
+
+  return (
+    <div style={M.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={M.modal}>
+        {/* Header */}
+        <div style={M.header}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ ...M.avatar, background: `${accent}22`, border: `2px solid ${accent}40`, color: accent }}>
+              {initial}
+            </div>
+            <div>
+              <div style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>{stored.name || "My Account"}</div>
+              <div style={{ color: "#666", fontSize: 12, marginTop: 2 }}>{stored.email || ""}</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={M.closeBtn}>
+            <X size={18} color="#888" />
           </button>
         </div>
-      )}
-    </nav>
+
+        {/* Tabs */}
+        <div style={M.tabRow}>
+          {["info", "password"].map(t => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); setStatus(null); }}
+              style={{
+                ...M.tab,
+                color:        tab === t ? accent            : "#666",
+                borderBottom: tab === t ? `2px solid ${accent}` : "2px solid transparent",
+                fontWeight:   tab === t ? 700                : 500,
+              }}
+            >
+              {t === "info" ? "Profile Info" : "Change Password"}
+            </button>
+          ))}
+        </div>
+
+        <div style={M.body}>
+          {/* Status banner */}
+          {status && (
+            <div style={{ ...M.statusBanner, background: status.type === "success" ? "#1a3a1a" : "#3a1a1a",
+              borderColor: status.type === "success" ? "#2d7a2d" : "#7a2d2d",
+              color:       status.type === "success" ? "#6ee46e" : "#f87171" }}>
+              {status.type === "success" ? <Check size={15} /> : <AlertCircle size={15} />}
+              {status.msg}
+            </div>
+          )}
+
+          {tab === "info" ? (
+            <>
+              <Field label="Full Name" icon={<User size={15} color="#555" />}>
+                <input value={name} onChange={e => setName(e.target.value)}
+                  placeholder="Enter your name"
+                  style={{ ...M.input, borderColor: "#2e2e2e" }}
+                  onFocus={e => (e.target.style.borderColor = accent)}
+                  onBlur={e => (e.target.style.borderColor = "#2e2e2e")} />
+              </Field>
+              <Field label="Email Address" icon={<Mail size={15} color="#555" />}>
+                <input value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="Enter your email" type="email"
+                  style={{ ...M.input, borderColor: "#2e2e2e" }}
+                  onFocus={e => (e.target.style.borderColor = accent)}
+                  onBlur={e => (e.target.style.borderColor = "#2e2e2e")} />
+              </Field>
+              <button onClick={saveInfo} disabled={loading}
+                style={{ ...M.saveBtn, background: accent, opacity: loading ? 0.7 : 1 }}>
+                {loading ? "Saving…" : "Save Changes"}
+              </button>
+            </>
+          ) : (
+            <>
+              <PwField label="Current Password" value={currentPw} onChange={setCurrentPw}
+                show={showCur} toggle={() => setShowCur(!showCur)} accent={accent} />
+              <PwField label="New Password" value={newPw} onChange={setNewPw}
+                show={showNew} toggle={() => setShowNew(!showNew)} accent={accent} hint="Minimum 6 characters" />
+              <PwField label="Confirm New Password" value={confirmPw} onChange={setConfirmPw}
+                show={showCon} toggle={() => setShowCon(!showCon)} accent={accent}
+                match={confirmPw.length > 0 ? newPw === confirmPw : null} />
+              <button onClick={savePassword} disabled={loading}
+                style={{ ...M.saveBtn, background: accent, opacity: loading ? 0.7 : 1 }}>
+                {loading ? "Updating…" : "Update Password"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, icon, children }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 6, color: "#888", fontSize: 12,
+        fontWeight: 600, letterSpacing: "0.05em", marginBottom: 8 }}>
+        {icon} {label.toUpperCase()}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function PwField({ label, value, onChange, show, toggle, accent, hint, match }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 6, color: "#888", fontSize: 12,
+        fontWeight: 600, letterSpacing: "0.05em", marginBottom: 8 }}>
+        <Lock size={15} color="#555" /> {label.toUpperCase()}
+      </label>
+      <div style={{ position: "relative" }}>
+        <input value={value} onChange={e => onChange(e.target.value)}
+          type={show ? "text" : "password"} placeholder="••••••••"
+          style={{ ...M.input, paddingRight: 44,
+            borderColor: match === true ? "#2d7a2d" : match === false ? "#7a2d2d" : "#2e2e2e" }}
+          onFocus={e => (e.target.style.borderColor = accent)}
+          onBlur={e => (e.target.style.borderColor = match === true ? "#2d7a2d" : match === false ? "#7a2d2d" : "#2e2e2e")} />
+        <button onClick={toggle} style={{ position: "absolute", right: 12, top: "50%",
+          transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+          {show ? <EyeOff size={16} color="#555" /> : <Eye size={16} color="#555" />}
+        </button>
+      </div>
+      {hint && <div style={{ color: "#555", fontSize: 11, marginTop: 5 }}>{hint}</div>}
+    </div>
   );
 }
 
 function NavItem({ to, children }) {
   return (
-    <NavLink
-      to={to}
-      style={({ isActive }) => ({
-        display: "flex", alignItems: "center", gap: 7,
-        padding: "9px 16px", borderRadius: 10, fontSize: 14,
-        fontWeight: 600, textDecoration: "none", transition: "all 0.15s",
-        background: isActive ? "#C8FF0015"           : "transparent",
-        color:      isActive ? "#C8FF00"             : "#aaa",
-        border:     isActive ? "1px solid #C8FF0030" : "1px solid transparent",
-      })}
-    >
+    <NavLink to={to} style={({ isActive }) => ({
+      display: "flex", alignItems: "center", gap: 7,
+      padding: "9px 16px", borderRadius: 10, fontSize: 14,
+      fontWeight: 600, textDecoration: "none", transition: "all 0.15s",
+      background: isActive ? "#C8FF0015"           : "transparent",
+      color:      isActive ? "#C8FF00"             : "#aaa",
+      border:     isActive ? "1px solid #C8FF0030" : "1px solid transparent",
+    })}>
       {children}
     </NavLink>
   );
@@ -258,80 +315,50 @@ function NavItem({ to, children }) {
 
 function MobileNavItem({ to, icon, children }) {
   return (
-    <NavLink
-      to={to}
-      style={({ isActive }) => ({
-        display: "flex", alignItems: "center", gap: 12,
-        padding: "12px 16px", borderRadius: 12, fontSize: 14,
-        fontWeight: 600, textDecoration: "none", marginBottom: 6,
-        background: isActive ? "#C8FF0015"           : "transparent",
-        color:      isActive ? "#C8FF00"             : "#ccc",
-        border:     isActive ? "1px solid #C8FF0030" : "1px solid transparent",
-      })}
-    >
+    <NavLink to={to} style={({ isActive }) => ({
+      display: "flex", alignItems: "center", gap: 12,
+      padding: "12px 16px", borderRadius: 12, fontSize: 14,
+      fontWeight: 600, textDecoration: "none", marginBottom: 6,
+      background: isActive ? "#C8FF0015"           : "transparent",
+      color:      isActive ? "#C8FF00"             : "#ccc",
+      border:     isActive ? "1px solid #C8FF0030" : "1px solid transparent",
+    })}>
       {icon}{children}
     </NavLink>
   );
 }
 
-/* All responsive logic lives in JS above — zero @media in this file */
 const S = {
-  nav: {
-    position: "sticky", top: 0, zIndex: 50,
-    width: "100%", transition: "all 0.3s",
-    fontFamily: "'Syne', sans-serif",
-  },
-  inner: {
-    maxWidth: 1400, margin: "0 auto", padding: "0 24px",
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-  },
-  logo: {
-    display: "flex", alignItems: "center", gap: 10,
-    cursor: "pointer", userSelect: "none",
-  },
+  nav: { position: "sticky", top: 0, zIndex: 50, width: "100%", transition: "all 0.3s", fontFamily: "'Syne', sans-serif" },
+  inner: { maxWidth: 1400, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" },
+  logo: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" },
   logoIconWrap: { position: "relative", width: 38, height: 38 },
-  logoGlow: {
-    position: "absolute", inset: 0,
-    background: "radial-gradient(circle, #C8FF0060 0%, transparent 70%)",
-    borderRadius: 10, filter: "blur(6px)",
-  },
-  logoIcon: {
-    position: "relative", width: 38, height: 38,
-    background: "#C8FF00", borderRadius: 10,
-    display: "flex", alignItems: "center", justifyContent: "center",
-  },
+  logoGlow: { position: "absolute", inset: 0, background: "radial-gradient(circle, #C8FF0060 0%, transparent 70%)", borderRadius: 10, filter: "blur(6px)" },
+  logoIcon: { position: "relative", width: 38, height: 38, background: "#C8FF00", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" },
   logoText:   { fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.5px" },
   logoAccent: { color: "#C8FF00" },
-  adminBadge: {
-    background: "#C8FF0015", border: "1px solid #C8FF0030",
-    color: "#C8FF00", fontSize: 10, fontWeight: 800,
-    letterSpacing: "0.1em", padding: "3px 8px", borderRadius: 99,
-  },
+  adminBadge: { background: "#C8FF0015", border: "1px solid #C8FF0030", color: "#C8FF00", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", padding: "3px 8px", borderRadius: 99 },
   desktopNav: { display: "flex", alignItems: "center", gap: 8 },
-  logoutBtn: {
-    display: "flex", alignItems: "center", gap: 7,
-    background: "#f8717118", border: "1px solid #f8717130",
-    color: "#f87171", borderRadius: 10,
-    padding: "9px 16px", fontWeight: 600, fontSize: 14,
-    cursor: "pointer", transition: "background 0.15s",
-  },
-  hamburger: {
-    background: "transparent", border: "1px solid #2e2e2e",
-    borderRadius: 8, padding: "6px", cursor: "pointer",
-    display: "flex", alignItems: "center", justifyContent: "center",
-  },
-  mobileMenu: {
-    maxWidth: 1400, margin: "0 auto", padding: "12px 24px 16px",
-    borderTop: "1px solid #1e1e1e",
-    background: "rgba(10,10,10,0.98)", backdropFilter: "blur(16px)",
-  },
-  mobileLogout: {
-    display: "flex", alignItems: "center", gap: 10,
-    width: "100%", justifyContent: "center", padding: "12px 16px",
-    background: "#f8717118", border: "1px solid #f8717130",
-    color: "#f87171", borderRadius: 12,
-    fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8,
-  },
+  profileBtn: { display: "flex", alignItems: "center", gap: 7, background: "#C8FF0012", border: "1px solid #C8FF0025", color: "#C8FF00", borderRadius: 10, padding: "9px 16px", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "background 0.15s" },
+  logoutBtn: { display: "flex", alignItems: "center", gap: 7, background: "#f8717118", border: "1px solid #f8717130", color: "#f87171", borderRadius: 10, padding: "9px 16px", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "background 0.15s" },
+  hamburger: { background: "transparent", border: "1px solid #2e2e2e", borderRadius: 8, padding: "6px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
+  mobileMenu: { maxWidth: 1400, margin: "0 auto", padding: "12px 24px 16px", borderTop: "1px solid #1e1e1e", background: "rgba(10,10,10,0.98)", backdropFilter: "blur(16px)" },
+  mobileProfileBtn: { display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "12px 16px", background: "#C8FF0012", border: "1px solid #C8FF0025", color: "#C8FF00", borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 6 },
+  mobileLogout: { display: "flex", alignItems: "center", gap: 10, width: "100%", justifyContent: "center", padding: "12px 16px", background: "#f8717118", border: "1px solid #f8717130", color: "#f87171", borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8 },
+};
+
+const M = {
+  overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, fontFamily: "'Syne', sans-serif" },
+  modal: { background: "#111", border: "1px solid #2a2a2a", borderRadius: 20, width: "100%", maxWidth: 440, overflow: "hidden", boxShadow: "0 24px 80px rgba(0,0,0,0.6)" },
+  header: { padding: "22px 24px", borderBottom: "1px solid #1e1e1e", display: "flex", alignItems: "center", justifyContent: "space-between" },
+  avatar: { width: 46, height: 46, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800 },
+  closeBtn: { background: "#1a1a1a", border: "1px solid #2e2e2e", borderRadius: 8, padding: 7, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
+  tabRow: { display: "flex", borderBottom: "1px solid #1e1e1e", padding: "0 24px" },
+  tab: { flex: 1, padding: "14px 0", background: "none", border: "none", borderBottom: "2px solid transparent", cursor: "pointer", fontSize: 13, letterSpacing: "0.02em", transition: "all 0.15s" },
+  body: { padding: 24 },
+  statusBanner: { display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderRadius: 10, border: "1px solid", fontSize: 13, marginBottom: 18, fontWeight: 500 },
+  input: { width: "100%", background: "#161616", border: "1px solid #2e2e2e", borderRadius: 10, padding: "11px 14px", color: "#fff", fontSize: 14, outline: "none", transition: "border-color 0.2s", boxSizing: "border-box" },
+  saveBtn: { width: "100%", padding: "13px", borderRadius: 12, border: "none", color: "#000", fontWeight: 800, fontSize: 14, cursor: "pointer", marginTop: 8, letterSpacing: "0.03em", transition: "opacity 0.15s" },
 };
 
 export default AdminNavbar;

@@ -383,12 +383,18 @@ function ParkingLotBooking({ lot, user, onClose }) {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      await axios.post("http://localhost:8080/api/bookings", {
-        user: { id: user.id }, lot: { id: lot.id },
-        vehicleType: selectedVehicle, vehicleNumber: vehicleNumber.toUpperCase(),
-        contactNumber: phoneNumber, serviceType: "SELF", status: "CONFIRMED",
-        startTime: new Date(startTime).toISOString(), endTime: new Date(endTime).toISOString(), totalAmount: totalPrice
-      }, { headers: { Authorization: `Bearer ${token}` } });
+     await axios.post("http://localhost:8080/api/bookings", {
+    userId: user.id, // ✅ Send flat ID instead of user: { id... }
+    lotId: lot.id,   // ✅ Send flat ID instead of lot: { id... }
+    vehicleType: selectedVehicle, 
+    vehicleNumber: vehicleNumber.toUpperCase(),
+    contactNumber: phoneNumber, 
+    serviceType: "SELF", 
+    status: "CONFIRMED",
+    startTime: new Date(startTime).toISOString(), 
+    endTime: new Date(endTime).toISOString(), 
+    totalAmount: totalPrice
+}, { headers: { Authorization: `Bearer ${token}` } });
       alert("Booking Successful!");
       navigate("/user-dashboard");
     } catch (err) { alert("Failed: " + (err.response?.data || "Error")); }

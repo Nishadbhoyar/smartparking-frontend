@@ -667,7 +667,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, KeyRound, Loader2, Sparkles, Car, ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 
@@ -969,6 +969,7 @@ function AuthInput({ icon: Icon, name, type = "text", placeholder, value, onChan
 function Login() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // State Management
   const [view, setView] = useState("login");
@@ -991,22 +992,22 @@ function Login() {
       
       axios.post("http://localhost:8080/api/auth/verify-magic-link", { token })
         .then((response) => {
-          const { token: jwt, user, redirectUrl } = response.data; // 👈 Get redirectUrl from backend
+  const { token: jwt, user } = response.data;
 
-          // 1. Store Session Data
-          localStorage.setItem("token", jwt);
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("userId", user.id);
-          localStorage.setItem("role", user.role);
+  localStorage.setItem("token", jwt);
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("userId", user.id);
+  localStorage.setItem("role", user.role);
 
-          // 2. FORCE REDIRECT based on Backend Response
-          // The backend specifically sends "/driver/dashboard", "/admin/dashboard", etc.
-          setTimeout(() => {
-             // We use window.location.href to ensure a hard redirect if needed, 
-             // or navigate(redirectUrl) if staying within React Router.
-             navigate(redirectUrl); 
-          }, 1500); 
-        })
+  // ✅ Don't trust redirectUrl from backend — calculate it yourself
+  const role = user.role?.toUpperCase();
+  const destination =
+    role === "ADMIN" || role === "OWNER" ? "/admin-dashboard" :
+    role === "VALET"                     ? "/valet-dashboard" :
+                                           "/user-dashboard";
+
+  setTimeout(() => navigate(destination), 1500);
+})
         .catch((err) => {
           console.error("Magic Link Error:", err);
           alert("❌ Invalid or Expired Magic Link.");
@@ -1017,15 +1018,31 @@ function Login() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, navigate]);
 
+  
+  useEffect(() => {
+    if (location.state?.mode === "otp") {
+      setLoginMethod("otp");
+      setEmail(location.state.email || "");
+      setStep(2); // OTP already sent, skip to entry step
+    }
+  }, [location.state]);
+
 
   /* ── Handlers (unchanged logic) ── */
-  const handleLoginSuccess = (user) => {
-    if (!user) return;
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("userId", user.id);
-    localStorage.setItem("role", user.role);
-    const role = user.role?.toUpperCase() ?? "DRIVER";
-    navigate(role === "ADMIN" || role === "OWNER" ? "/admin-dashboard" : role === "VALET" ? "/valet-dashboard" : "/user-dashboard");
+  const handleLoginSuccess = (data) => {
+    if (!data || !data.user) return;
+    
+    console.log("Login Success! Routing to:", data.redirectUrl); // 👈 Add this to see it work
+
+    // Store Session Data
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("userId", data.user.id);
+    localStorage.setItem("role", data.user.role);
+    
+    // Let the Backend decide where this user goes 
+    const destination = data.redirectUrl || "/user-dashboard"; 
+    navigate(destination);
   };
 
   const validateEmail = (email) => {
@@ -1060,10 +1077,16 @@ function Login() {
     e.preventDefault(); setLoading(true);
     try {
       const res = await axios.post("http://localhost:8080/api/auth/verify-otp", { email, otp });
-      if (res.data.token) localStorage.setItem("token", res.data.token);
-      handleLoginSuccess(res.data.user);
-    } catch { alert("❌ Invalid OTP Code!"); }
-    finally { setLoading(false); }
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        // ✅ FIX: Pass the entire res.data, NOT res.data.user
+        handleLoginSuccess(res.data);
+      }
+    } catch { 
+      alert("❌ Invalid OTP Code!"); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const handlePasswordLogin = async (e) => {
@@ -1076,7 +1099,8 @@ function Login() {
       const res = await axios.post("http://localhost:8080/api/auth/login", { email, password });
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
-        handleLoginSuccess(res.data.user);
+        // ✅ FIX: Pass the entire res.data, NOT res.data.user
+        handleLoginSuccess(res.data);
       }
     } catch (err) {
       if (err.response && err.response.status === 403) {

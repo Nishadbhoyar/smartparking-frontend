@@ -441,15 +441,43 @@ function AddParkingLot() {
   const handleSubmit = async () => {
     if (!ownerId) { alert("Admin ID not found. Relogin."); return; }
     if (!latitude || !longitude) { alert("Please select a location on the map."); return; }
+    
     const token = localStorage.getItem("token");
+
+    // Extract rates from the slots array
+    const carSlot = slots.find(s => s.vehicleType === "CAR");
+    const bikeSlot = slots.find(s => s.vehicleType === "BIKE");
+    const heavySlot = slots.find(s => s.vehicleType === "TRUCK" || s.vehicleType === "HEAVY");
+
+    // FLATTEN THE PAYLOAD to match ParkingLotDTO exactly
+    const payload = {
+      name, 
+      address, 
+      description, 
+      type,
+      latitude,                 // 👈 Flat field
+      longitude,                // 👈 Flat field
+      ownerId,                  // 👈 Include ownerId inside the body!
+      cctv: features.cctv,             // 👈 Flat boolean
+      security: features.security,     // 👈 Flat boolean
+      covered: features.covered,       // 👈 Flat boolean
+      evCharging: features.evCharging, // 👈 Flat boolean
+      carrate: carSlot ? carSlot.price : 0,       // 👈 Flat integer
+      bikerate: bikeSlot ? bikeSlot.price : 0,    // 👈 Flat integer
+      heavyrate: heavySlot ? heavySlot.price : 0, // 👈 Flat integer
+      slots: slots // Keep the slots array so the backend can save capacities
+    };
+
     try {
-      await axios.post(`http://localhost:8080/api/parking-lots?ownerId=${ownerId}`,
-        { name, address, description, type, location: { latitude, longitude }, parkingSlots: slots, amenities: features },
+      // Cleaned up the URL since ownerId is now in the body
+      await axios.post(`http://localhost:8080/api/parking-lots`, payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Parking Lot Added Successfully!");
       navigate("/admin-dashboard");
-    } catch (err) { if (err.response?.status !== 401) alert("Failed to add parking lot"); }
+    } catch (err) { 
+      if (err.response?.status !== 401) alert("Failed to add parking lot"); 
+    }
   };
 
   const VehicleIcon = ({ t }) => t === "CAR" ? <Car size={16} /> : t === "BIKE" ? <Bike size={16} /> : <Truck size={16} />;

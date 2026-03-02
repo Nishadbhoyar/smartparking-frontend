@@ -319,10 +319,12 @@ function Signup() {
     setLoading(true);
     try {
       await axios.post("http://localhost:8080/api/auth/signup", formData);
-      alert("✅ Registration successful! Please login.");
-      navigate("/login");
+      alert("✅ Registration successful! Check your email for the OTP to verify your account.");
+      // ✅ Pass email to login page so OTP tab auto-populates
+      navigate("/login", { state: { email: formData.email, mode: "otp" } });
     } catch (error) {
-      const msg = error.response?.data?.message || "Registration failed.";
+      // ✅ Bug 2 fix: read "error" key
+      const msg = error.response?.data?.error || error.response?.data?.message || "Registration failed.";
       alert("❌ " + msg);
     } finally {
       setLoading(false);
